@@ -1,0 +1,53 @@
+{
+  "entities": {
+    "Profile": {
+      "title": "Profile",
+      "description": "User health profile and baseline assessments",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "The firebase user id" },
+        "age": { "type": "integer" },
+        "weight": { "type": "number" },
+        "height": { "type": "number" },
+        "country": { "type": "string" },
+        "diet": { "type": "string" },
+        "physicalActivity": { "type": "string" },
+        "history": { "type": "string" },
+        "goal": { "type": "string" },
+        "healthScore": { "type": "integer" },
+        "diabetesRisk": { "type": "string" },
+        "hypertensionRisk": { "type": "string" },
+        "dietQuality": { "type": "string" },
+        "recommendations": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "age", "weight", "height", "country", "diet", "physicalActivity", "history", "goal", "healthScore", "diabetesRisk", "hypertensionRisk", "dietQuality", "recommendations", "createdAt"]
+    },
+    "Meal": {
+      "title": "Meal",
+      "description": "Analyzed meal with nutritional details",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "analysisText": { "type": "string" },
+        "calories": { "type": "integer" },
+        "nutritionalValue": { "type": "string" },
+        "suggestions": { "type": "string" },
+        "mealName": { "type": "string" },
+        "localIngredients": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "analysisText", "calories", "nutritionalValue", "suggestions", "mealName", "createdAt"]
+    }
+  },
+  "firestore": {
+    "profiles/{profileId}": {
+      "schema": "Profile",
+      "description": "Collection of user health profiles"
+    },
+    "meals/{mealId}": {
+      "schema": "Meal",
+      "description": "Collection of analyzed meals"
+    }
+  }
+}

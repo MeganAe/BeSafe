@@ -1,0 +1,110 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+    
+    // Global Helpers
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isEmailVerified() {
+      return isSignedIn();
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Helper: Validations for Profile
+    function isValidProfile(data) {
+      return data.userId is string 
+        && data.userId == request.auth.uid
+        && (data.age is int || data.age is number)
+        && data.age >= 0 && data.age <= 150
+        && data.weight is number
+        && data.weight >= 0 && data.weight <= 500
+        && data.height is number
+        && data.height >= 0 && data.height <= 300
+        && data.country is string && data.country.size() <= 1000
+        && data.diet is string && data.diet.size() <= 10000
+        && data.physicalActivity is string && data.physicalActivity.size() <= 10000
+        && data.history is string && data.history.size() <= 10000
+        && data.goal is string && data.goal.size() <= 10000
+        && (data.healthScore is int || data.healthScore is number) && data.healthScore >= 0 && data.healthScore <= 100
+        && data.diabetesRisk is string && data.diabetesRisk.size() <= 20000
+        && data.hypertensionRisk is string && data.hypertensionRisk.size() <= 20000
+        && data.dietQuality is string && data.dietQuality.size() <= 20000
+        && data.recommendations is string && data.recommendations.size() <= 50000
+        && data.createdAt is timestamp;
+    }
+
+    // Helper: Validations for Meal
+    function isValidMeal(data) {
+      return data.userId is string 
+        && data.userId == request.auth.uid
+        && (data.calories is int || data.calories is number) && data.calories >= 0 && data.calories <= 20000
+        && data.nutritionalValue is string && data.nutritionalValue.size() <= 5000
+        && data.suggestions is string && data.suggestions.size() <= 25000
+        && data.mealName is string && data.mealName.size() <= 1000
+        && data.localIngredients is string && data.localIngredients.size() <= 10000
+        && data.createdAt is timestamp;
+    }
+
+    // Collection Profile Rules
+    match /profiles/{profileId} {
+      allow get: if isEmailVerified() && profileId == request.auth.uid;
+      allow list: if isEmailVerified() && resource.data.userId == request.auth.uid;
+      
+      allow create: if isEmailVerified() 
+        && isValidId(profileId) 
+        && incoming().userId == request.auth.uid
+        && incoming().createdAt == request.time
+        && isValidProfile(incoming());
+        
+      allow update: if isEmailVerified() 
+        && isValidId(profileId)
+        && existing().userId == request.auth.uid
+        && incoming().userId == request.auth.uid
+        && incoming().createdAt == existing().createdAt
+        && isValidProfile(incoming())
+        && (
+          incoming().diff(existing()).affectedKeys().hasOnly([
+            'age', 'weight', 'height', 'country', 'diet', 'physicalActivity', 
+            'history', 'goal', 'healthScore', 'diabetesRisk', 'hypertensionRisk', 
+            'dietQuality', 'recommendations'
+          ])
+        );
+        
+      allow delete: if isEmailVerified() && existing().userId == request.auth.uid;
+    }
+
+    // Collection Meal Rules
+    match /meals/{mealId} {
+      allow get: if isEmailVerified() && existing().userId == request.auth.uid;
+      allow list: if isEmailVerified() && resource.data.userId == request.auth.uid;
+      
+      allow create: if isEmailVerified() 
+        && isValidId(mealId) 
+        && incoming().userId == request.auth.uid
+        && incoming().createdAt == request.time
+        && isValidMeal(incoming());
+        
+      allow update: if false; // Meals are immutable analyzed records.
+      
+      allow delete: if isEmailVerified() && existing().userId == request.auth.uid;
+    }
+  }
+}

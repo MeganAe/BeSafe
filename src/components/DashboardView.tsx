@@ -4,12 +4,13 @@ import { collection, query, where, orderBy, getDocs, deleteDoc, doc } from "fire
 import { db, handleFirestoreError, OperationType } from "../firebase";
 import { ProfileData, MealData } from "../types";
 import MealAnalyzer from "./MealAnalyzer";
+import { translations } from "../lib/translations";
 import { motion, AnimatePresence } from "motion/react";
 import { 
   Heart, Sparkles, LogOut, RefreshCw, Calendar, 
   Trash2, Flame, Apple, Info, ShieldAlert, CheckCircle2,
   ChevronRight, Smile, Award, Activity, Compass,
-  Plus, Check, Bell, FileText, TrendingUp
+  Plus, Check, Bell, FileText, TrendingUp, Mail, Send, Copy, AlertTriangle, X
 } from "lucide-react";
 import { jsPDF } from "jspdf";
 import { 
@@ -33,9 +34,11 @@ interface DashboardViewProps {
   user: User;
   profile: ProfileData;
   onResetProfile: () => void;
+  lang: 'fr' | 'en';
 }
 
-export default function DashboardView({ user, profile, onResetProfile }: DashboardViewProps) {
+export default function DashboardView({ user, profile, onResetProfile, lang }: DashboardViewProps) {
+  const t = translations[lang];
   const [activeTab, setActiveTab] = useState<"diagnostic" | "recipes" | "analyzer" | "history">("diagnostic");
   const [mealsList, setMealsList] = useState<MealData[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
@@ -50,6 +53,16 @@ export default function DashboardView({ user, profile, onResetProfile }: Dashboa
   const [trackWeight, setTrackWeight] = useState(profile.weight.toString());
   const [trackScore, setTrackScore] = useState(profile.healthScore.toString());
   const [trackDate, setTrackDate] = useState("");
+
+  // États pour la fonctionnalité d’envoi d’e-mails (Médecin/Utilisateur)
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [toEmail, setToEmail] = useState(user.email || "");
+  const [emailSubject, setEmailSubject] = useState(`Mon Bilan de Santé & Conseils Préventifs - BeSafe`);
+  const [sendingEmail, setSendingEmail] = useState(false);
+  const [emailSuccess, setEmailSuccess] = useState<string | null>(null);
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [fallbackHtml, setFallbackHtml] = useState<string | null>(null);
+  const [copiedHtml, setCopiedHtml] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined" && "Notification" in window) {
@@ -147,6 +160,52 @@ export default function DashboardView({ user, profile, onResetProfile }: Dashboa
       }
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  // Envoi interactif du bilan par E-mail
+  const handleSendEmail = async (e: FormEvent) => {
+    e.preventDefault();
+    setSendingEmail(true);
+    setEmailSuccess(null);
+    setEmailError(null);
+    setFallbackHtml(null);
+    setCopiedHtml(false);
+
+    try {
+      const response = await fetch("/api/send-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          to: toEmail,
+          subject: emailSubject,
+          profile,
+          trackingData,
+          userName: user.displayName,
+          userEmail: user.email
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Une erreur est survenue lors de l'appel API.");
+      }
+
+      const resData = await response.json();
+      if (resData.success) {
+        setEmailSuccess(resData.message || "Bilan de santé envoyé avec succès !");
+      } else {
+        // Fallback transparent si SMTP n'est pas configuré dans les secrets
+        setEmailError(resData.message);
+        if (resData.html) {
+          setFallbackHtml(resData.html);
+        }
+      }
+    } catch (err: any) {
+      console.error("Erreur send mail frontend:", err);
+      setEmailError(err.message || "Échec de la connexion au serveur d'envoi d'emails.");
+    } finally {
+      setSendingEmail(false);
     }
   };
 
@@ -597,6 +656,20 @@ export default function DashboardView({ user, profile, onResetProfile }: Dashboa
               Rapport Médecin (PDF)
             </button>
             <button
+              onClick={() => {
+                setShowEmailModal(true);
+                setEmailSuccess(null);
+                setEmailError(null);
+                setFallbackHtml(null);
+              }}
+              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full font-bold shadow-md shadow-emerald-200 hover:shadow-lg transition-all flex items-center gap-1.5 cursor-pointer"
+              title="Envoyer le bilan médical de santé par e-mail ou générer l'aperçu HTML de partage"
+              id="btn_send_email_report"
+            >
+              <Mail className="w-3.5 h-3.5 text-emerald-100" />
+              Envoyer par Email
+            </button>
+            <button
               onClick={onResetProfile}
               className="px-4 py-2 border border-green-200 text-green-600 hover:bg-green-50 rounded-full font-bold transition-all shadow-sm"
               id="btn_recal_profile"
@@ -771,7 +844,7 @@ export default function DashboardView({ user, profile, onResetProfile }: Dashboa
           id="tab_diagnostic"
         >
           <Smile className="w-3.5 h-3.5" />
-          Mon Diagnostic IA
+          {lang === "en" ? "My AI Diagnosis" : "Mon Diagnostic IA"}
         </button>
 
         <button
@@ -784,7 +857,7 @@ export default function DashboardView({ user, profile, onResetProfile }: Dashboa
           id="tab_analyzer"
         >
           <Apple className="w-3.5 h-3.5" />
-          Analyseur Photo repas
+          {lang === "en" ? "Scan Meal Photo" : "Analyseur Photo repas"}
         </button>
 
         <button
@@ -797,7 +870,7 @@ export default function DashboardView({ user, profile, onResetProfile }: Dashboa
           id="tab_recipes"
         >
           <Calendar className="w-3.5 h-3.5" />
-          Plan Alimentaire 7 Jours
+          {lang === "en" ? "7-Day Diet Plan" : "Plan Alimentaire 7 Jours"}
         </button>
 
         <button
@@ -810,7 +883,7 @@ export default function DashboardView({ user, profile, onResetProfile }: Dashboa
           id="tab_history"
         >
           <Compass className="w-3.5 h-3.5" />
-          Historique ({mealsList.length})
+          {lang === "en" ? "History" : "Historique"} ({mealsList.length})
         </button>
       </div>
 
@@ -932,6 +1005,7 @@ export default function DashboardView({ user, profile, onResetProfile }: Dashboa
                 country={profile.country} 
                 goal={profile.goal} 
                 onMealAnalyzed={fetchMealHistory} 
+                lang={lang}
               />
             </div>
           )}
@@ -1027,6 +1101,180 @@ export default function DashboardView({ user, profile, onResetProfile }: Dashboa
           )}
 
         </motion.div>
+      </AnimatePresence>
+
+      {/* 📧 Modal d'envoi de rapport par Email */}
+      <AnimatePresence>
+        {showEmailModal && (
+          <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              className="bg-white w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl border border-slate-100 flex flex-col max-h-[90vh]"
+              id="email_share_modal"
+            >
+              {/* Header */}
+              <div className="bg-emerald-600 px-6 py-5 flex items-center justify-between text-white">
+                <div className="flex items-center gap-2.5">
+                  <Mail className="w-5 h-5 text-emerald-100" />
+                  <div>
+                    <h3 className="font-display font-bold text-sm">Transmettre mon bilan par Email</h3>
+                    <p className="text-[10px] text-emerald-100/80">Partagez vos rapports cliniques de santé avec votre médecin ou vous-même.</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowEmailModal(false)}
+                  className="p-1 px-2.5 hover:bg-emerald-700 rounded-xl transition-all cursor-pointer text-white font-bold"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Body */}
+              <div className="p-6 overflow-y-auto flex-1 space-y-5 text-left">
+                
+                {/* Formulaire */}
+                <form onSubmit={handleSendEmail} className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+                        Destinataire (Email)
+                      </label>
+                      <input 
+                        type="email" 
+                        required
+                        value={toEmail}
+                        onChange={(e) => setToEmail(e.target.value)}
+                        placeholder="ex: medecin@nutrition.com"
+                        className="w-full text-xs p-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:outline-none transition-all text-slate-800"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+                        Objet de l'e-mail
+                      </label>
+                      <input 
+                        type="text" 
+                        required
+                        value={emailSubject}
+                        onChange={(e) => setEmailSubject(e.target.value)}
+                        placeholder="Objet de l'envoi"
+                        className="w-full text-xs p-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:outline-none transition-all text-slate-800"
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={sendingEmail}
+                    className="w-full p-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs transition-all flex items-center justify-center gap-2 disabled:bg-emerald-300 disabled:cursor-not-allowed cursor-pointer shadow-md"
+                  >
+                    {sendingEmail ? (
+                      <>
+                        <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <span>Génération du rapport et expédition...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-3.5 h-3.5" />
+                        <span>Expédier le bilan par Email</span>
+                      </>
+                    )}
+                  </button>
+                </form>
+
+                {/* Confirmations de retour */}
+                {emailSuccess && (
+                  <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex gap-3 text-emerald-800 text-xs">
+                    <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600 mt-0.5" />
+                    <div>
+                      <p className="font-bold">Succès !</p>
+                      <p className="mt-0.5 text-emerald-700">{emailSuccess}</p>
+                    </div>
+                  </div>
+                )}
+
+                {emailError && (
+                  <div className="p-4.5 bg-amber-50 border border-amber-200 rounded-2xl space-y-3" id="email_error_fallback">
+                    <div className="flex gap-2 text-xs text-amber-800 font-bold items-center">
+                      <AlertTriangle className="w-4 h-4 text-amber-600" />
+                      <span>Limitation ou configuration requise</span>
+                    </div>
+                    <p className="text-[11px] text-slate-600 leading-relaxed">
+                      {emailError} Pour l'envoi automatique direct, veuillez configurer <code className="bg-slate-200/60 px-1 py-0.5 rounded text-amber-900 font-bold">SMTP_HOST</code> et ses identifiants dans les variables d'environnement de votre projet.
+                    </p>
+
+                    {/* Solutions immédiates de secours */}
+                    <div className="flex flex-wrap gap-2 pt-1.5">
+                      <button
+                        onClick={() => {
+                          const mailtoUrl = `mailto:${encodeURIComponent(toEmail)}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(
+                            `Bonjour,\n\nVoici mon Bilan de Santé Préventif issu de mon application BeSafe.\n\n` +
+                            `- Pays d'évaluation : ${profile.country}\n` +
+                            `- Score de Santé Global : ${profile.healthScore}/100\n` +
+                            `- Risque Diabète : ${profile.diabetesRisk}\n` +
+                            `- Risque Cardiovasculaire : ${profile.hypertensionRisk}\n` +
+                            `- Recommandations Nutritionnelles : ${profile.recommendations?.substring(0, 150)}...\n\n` +
+                            `Vous pouvez coller le code d'évaluation HTML complet en pièce jointe ou ouvrir mon PDF.\n\nCordialement,\n${user.displayName || "Patient BeSafe"}`
+                          )}`;
+                          window.open(mailtoUrl, "_blank");
+                        }}
+                        className="py-2 px-3.5 bg-slate-800 text-white rounded-xl text-[11px] font-bold hover:bg-slate-700 transition cursor-pointer"
+                      >
+                        Ouvrir dans mon client Mail local (MailtoBox)
+                      </button>
+
+                      {fallbackHtml && (
+                        <button
+                          onClick={() => {
+                            if (fallbackHtml) {
+                              navigator.clipboard.writeText(fallbackHtml);
+                              setCopiedHtml(true);
+                              setTimeout(() => setCopiedHtml(false), 2500);
+                            }
+                          }}
+                          className="py-2 px-3.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-xl text-[11px] font-bold hover:bg-emerald-100 transition flex items-center gap-1.5 cursor-pointer"
+                        >
+                          {copiedHtml ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-emerald-600" />}
+                          {copiedHtml ? "Code Copié !" : "Copier le Code HTML du Rapport"}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Aperçu direct en direct de la mise en page de l'email */}
+                {fallbackHtml && (
+                  <div className="space-y-2 pt-1 border-t border-slate-100">
+                    <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                      Aperçu réel du rapport médical envoyé :
+                    </span>
+                    <div className="border border-slate-200 rounded-2xl overflow-hidden h-60 bg-slate-50">
+                      <iframe 
+                        title="Dossier Health HTML Preview"
+                        srcDoc={fallbackHtml} 
+                        className="w-full h-full border-0" 
+                      />
+                    </div>
+                  </div>
+                )}
+
+              </div>
+
+              {/* Footer */}
+              <div className="bg-slate-50 px-6 py-4 flex justify-end border-t border-slate-100">
+                <button
+                  onClick={() => setShowEmailModal(false)}
+                  className="px-4 py-2 hover:bg-slate-100 text-slate-600 text-xs font-bold rounded-xl transition cursor-pointer border border-slate-200"
+                >
+                  Fermer la fenêtre
+                </button>
+              </div>
+
+            </motion.div>
+          </div>
+        )}
       </AnimatePresence>
     </div>
   );

@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { User } from "firebase/auth";
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { db, handleFirestoreError, OperationType } from "../firebase";
 import { ProfileData } from "../types";
+import { translations } from "../lib/translations";
 import { motion, AnimatePresence } from "motion/react";
 import { 
   ArrowRight, ArrowLeft, HeartPulse, UserCircle, Activity, 
@@ -12,9 +13,11 @@ import {
 interface OnboardingViewProps {
   user: User;
   onComplete: (profile: ProfileData) => void;
+  lang: 'fr' | 'en';
+  setLang: (lang: 'fr' | 'en') => void;
 }
 
-export default function OnboardingView({ user, onComplete }: OnboardingViewProps) {
+export default function OnboardingView({ user, onComplete, lang, setLang }: OnboardingViewProps) {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [loadingMsg, setLoadingMsg] = useState("");
@@ -29,45 +32,32 @@ export default function OnboardingView({ user, onComplete }: OnboardingViewProps
   const [history, setHistory] = useState<string>("Aucun antécédent");
   const [goal, setGoal] = useState<string>("Perdre du poids et manger équilibré");
 
-  const commonCountries = [
+  const t = translations[lang];
+
+  // Ajuster le pays et options de base lors du changement de langue
+  useEffect(() => {
+    if (lang === "en") {
+      if (country === "Sénégal") setCountry("Senegal");
+      if (physicalActivity === "Modérée") setPhysicalActivity("Modérée"); // value stored matching db values
+      if (history === "Aucun antécédent") setHistory("Aucun antécédent");
+      if (goal === "Perdre du poids et manger équilibré") setGoal("Perdre du poids et affiner ma silhouette");
+    } else {
+      if (country === "Senegal") setCountry("Sénégal");
+    }
+  }, [lang]);
+
+  const commonCountries = lang === "en" ? [
+    "Senegal", "Ivory Coast", "Cameroon", "Democratic Republic of Congo", 
+    "Gabon", "France", "Benin", "Togo", "Mali", "Guinea", "Congo-Brazzaville", 
+    "Burkina Faso", "Belgium", "Canada"
+  ] : [
     "Sénégal", "Côte d'Ivoire", "Cameroun", "République Démocratique du Congo", 
     "Gabon", "France", "Bénin", "Togo", "Mali", "Guinée", "Congo-Brazzaville", 
     "Burkina Faso", "Belgique", "Canada"
   ];
 
-  const suggestedDiets = [
-    { label: "Plats locaux riches (foufou, sauce huile de palme, tubercule de manioc, dinde, bœuf)", value: "Plats locaux riches (foufou, sauce huile de palme, manioc, riz gras, viande)." },
-    { label: "Beignets, haricots frits, plantains (moko, dodo) et bouillies sucrées", value: "Repas frits avec beaucoup de féculents (beignets, haricots frits, bananes plantains)." },
-    { label: "Riz gras traditionnel, riz au poisson braisé et légumes cuits", value: "Riz traditionnel cuit blanc ou riz gras avec du poisson braisé et légumes de saison." },
-    { label: "Alimentation occidentale classique (viandes, pizzas, pâtes, sauces crémées)", value: "Alimentation occidentale (pâtes, sauces industrielles, pizzas, viandes, frites, sodas)." },
-    { label: "Option végétarienne équilibrée (tubercules, avocat, arachides grillées, légumes verts)", value: "Alimentation principalement végétarienne (tubercules bouillis, avocat, arachides, épinards, gombo)." },
-    { label: "Repas légers : bouillons de poisson (pepper soup), salades, poulet grillé", value: "Repas légers de saison (bouillon de poisson léger, légumes vapeur, poulet sans matière grasse)." }
-  ];
-
-  const activities = [
-    { label: "Sédentaire (Peu ou pas d'exercice)", value: "Sédentaire" },
-    { label: "Modérée (Marche, course ou sport 1-3 fois/semaine)", value: "Modérée" },
-    { label: "Intense (Travail physique ou sport quotidien vigoureux)", value: "Intense" }
-  ];
-
-  const medicalHistories = [
-    { label: "Aucun antécédent particulier", value: "Aucun antécédent" },
-    { label: "Présence de cas de diabète dans la famille proche", value: "Antécédents familiaux de diabète de type 2" },
-    { label: "Hypertension artérielle ou fatigue cardiaque régulière", value: "Hypertension artérielle diagnostiquée ou suspicion" },
-    { label: "Cholestérol élevé ou surpoids persistant", value: "Cholestérol élevé et tendance au surpoids" },
-    { label: "Troubles digestifs réguliers (gluten, lactose, ballonnements)", value: "Sensibilité intestinale, ballonnements récurrents" }
-  ];
-
-  const wellnessGoals = [
-    { label: "Perdre du poids et affiner ma silhouette sainement", value: "Perdre du poids et affiner ma silhouette" },
-    { label: "Stabiliser ma glycémie et prévenir les risques de Diabète", value: "Prévenir et réguler ma glycémie pour le Diabète" },
-    { label: "Réduire les risques d'Hypertension et vivre plus longtemps", value: "Prendre soin de ma tension artérielle et de mon cœur" },
-    { label: "Améliorer ma digestion et adopter une alimentation plus fraîche", value: "Adopter une alimentation plus naturelle et améliorer le transit" },
-    { label: "Booster mon niveau d'énergie global et ma vitalité au quotidien", value: "Optimiser mes apports en nutriments pour la forme et le tonus" }
-  ];
-
   const handleNext = () => {
-    if (step < 8) setStep(step + 1);
+    if (step < 9) setStep(step + 1);
   };
 
   const handlePrev = () => {
@@ -76,14 +66,9 @@ export default function OnboardingView({ user, onComplete }: OnboardingViewProps
 
   const handleFinish = async () => {
     setLoading(true);
-    setLoadingMsg("Analyse de vos données par le coach BeSafe...");
+    setLoadingMsg(t.onboarding.loaderTitle);
 
-    const steps = [
-      "Interprétation de votre profil médical...",
-      "Calcul des risques de Diabète et d'Hypertension...",
-      "Extraction des meilleurs ingrédients de substitution locaux...",
-      "Génération personnalisée de vos repas pour la semaine..."
-    ];
+    const steps = t.onboarding.loaderSteps;
 
     let currentStepIndex = 0;
     const interval = setInterval(() => {
@@ -94,7 +79,7 @@ export default function OnboardingView({ user, onComplete }: OnboardingViewProps
     }, 1800);
 
     try {
-      // Appel à l'API de notre serveur Express qui proxy le Gemini SDK
+      // Appel à l'API de notre serveur Express qui proxy le Gemini SDK (avec langue passée)
       const response = await fetch("/api/gemini/onboard", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -106,19 +91,20 @@ export default function OnboardingView({ user, onComplete }: OnboardingViewProps
           diet,
           physicalActivity,
           history,
-          goal
+          goal,
+          language: lang
         }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Une erreur est survenue lors de l'appel Gemini.");
+        throw new Error(errorData.error || (lang === "en" ? "An error occurred with Gemini." : "Une erreur est survenue lors de l'appel Gemini."));
       }
 
       const lAssement = await response.json();
 
       // Construction de l'objet profil à enregistrer dans Firestore
-      const newProfile: ProfileData = {
+      const newProfile: ProfileData & { language: string } = {
         userId: user.uid,
         age: Number(age),
         weight: Number(weight),
@@ -134,6 +120,7 @@ export default function OnboardingView({ user, onComplete }: OnboardingViewProps
         dietQuality: lAssement.dietQuality,
         recommendations: lAssement.recommendations,
         createdAt: new Date(),
+        language: lang,
       };
 
       // Sauvegarde dans Firestore de l'utilisateur connecté
@@ -152,14 +139,14 @@ export default function OnboardingView({ user, onComplete }: OnboardingViewProps
 
     } catch (error: any) {
       console.error(error);
-      alert("Erreur lors de l'onboarding : " + error.message);
+      alert((lang === "en" ? "Error during onboarding: " : "Erreur lors de l'onboarding : ") + error.message);
     } finally {
       clearInterval(interval);
       setLoading(false);
     }
   };
 
-  const progressPercent = (step / 8) * 100;
+  const progressPercent = (step / 9) * 100;
 
   return (
     <div className="w-full max-w-xl mx-auto my-8 px-4 font-sans" id="onboarding_section">
@@ -186,7 +173,7 @@ export default function OnboardingView({ user, onComplete }: OnboardingViewProps
               {loadingMsg}
             </motion.h3>
             <p className="text-slate-400 text-xs mt-3 max-w-xs">
-              Veuillez patienter pendant que BeSafe configure un plan sur mesure ajusté à vos coutumes locales.
+              {t.onboarding.loaderSub}
             </p>
           </motion.div>
         ) : (
@@ -201,8 +188,8 @@ export default function OnboardingView({ user, onComplete }: OnboardingViewProps
             {/* Barre de Progression */}
             <div className="mb-6">
               <div className="flex justify-between items-center text-xs text-slate-500 font-semibold mb-2">
-                <span className="text-gradient">Profil Santé BeSafe</span>
-                <span>Question {step} / 8</span>
+                <span className="text-gradient">{t.onboarding.title}</span>
+                <span>{t.onboarding.question} {step} / 9</span>
               </div>
               <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
                 <motion.div
@@ -215,17 +202,59 @@ export default function OnboardingView({ user, onComplete }: OnboardingViewProps
 
             {/* Questions du Formulaire */}
             <div className="min-h-[220px]">
-              {/* Étape 1 : Âge */}
+              
+              {/* Étape 1 : Choix de la langue */}
               {step === 1 && (
+                <div id="step_language">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Sparkles className="w-5 h-5 text-emerald-500" />
+                    <h2 className="text-lg font-display font-bold text-slate-800">
+                      {t.onboarding.stepLangTitle}
+                    </h2>
+                  </div>
+                  <p className="text-xs text-slate-400 mb-6">
+                    {t.onboarding.stepLangDesc}
+                  </p>
+                  <div className="grid grid-cols-2 gap-4">
+                    <button
+                      type="button"
+                      onClick={() => setLang('fr')}
+                      className={`flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all duration-300 cursor-pointer ${
+                        lang === 'fr' 
+                          ? 'border-emerald-500 bg-emerald-50/50 shadow-md shadow-emerald-100'
+                          : 'border-slate-100 bg-white hover:border-slate-300'
+                      }`}
+                    >
+                      <span className="text-3xl mb-2">🇫🇷</span>
+                      <span className={`text-xs font-bold ${lang === 'fr' ? 'text-emerald-800' : 'text-slate-600'}`}>Français</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setLang('en')}
+                      className={`flex flex-col items-center justify-center p-6 rounded-2xl border-2 transition-all duration-300 cursor-pointer ${
+                        lang === 'en' 
+                          ? 'border-emerald-500 bg-emerald-50/50 shadow-md shadow-emerald-100'
+                          : 'border-slate-100 bg-white hover:border-slate-300'
+                      }`}
+                    >
+                      <span className="text-3xl mb-2">🇬🇧</span>
+                      <span className={`text-xs font-bold ${lang === 'en' ? 'text-emerald-800' : 'text-slate-600'}`}>English</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Étape 2 : Âge */}
+              {step === 2 && (
                 <div id="step_age">
                   <div className="flex items-center gap-2 mb-3">
                     <UserCircle className="w-5 h-5 text-emerald-500" />
                     <h2 className="text-lg font-display font-bold text-slate-800">
-                      Quel âge avez-vous ?
+                      {t.onboarding.stepAgeTitle}
                     </h2>
                   </div>
                   <p className="text-xs text-slate-400 mb-4">
-                    L'âge permet d'évaluer le métabolisme et d'identifier l'évolution normale des risques cardiovasculaires.
+                    {t.onboarding.stepAgeDesc}
                   </p>
                   <input
                     type="number"
@@ -233,28 +262,30 @@ export default function OnboardingView({ user, onComplete }: OnboardingViewProps
                     max="120"
                     value={age}
                     onChange={(e) => setAge(e.target.value)}
-                    placeholder="Ex: 34"
+                    placeholder={t.onboarding.stepAgePlaceholder}
                     className="w-full px-4 py-3 bg-white/80 border border-slate-200 rounded-2xl text-slate-800 font-sans font-medium text-sm focus:outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400"
                     id="input_age"
                   />
                 </div>
               )}
 
-              {/* Étape 2 : Poids */}
-              {step === 2 && (
+              {/* Étape 3 : Corpulence */}
+              {step === 3 && (
                 <div id="step_weight_height">
                   <div className="flex items-center gap-2 mb-3">
                     <Activity className="w-5 h-5 text-emerald-500" />
                     <h2 className="text-lg font-display font-bold text-slate-800">
-                      Mesures de corpulence
+                      {t.onboarding.stepCorpTitle}
                     </h2>
                   </div>
                   <p className="text-xs text-slate-400 mb-4">
-                    Ces indicateurs permettent au coach BeSafe de calculer votre IMC (Indice de Masse Corporelle).
+                    {t.onboarding.stepCorpDesc}
                   </p>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wide block mb-1">Poids (kg)</label>
+                      <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wide block mb-1">
+                        {t.onboarding.stepCorpWeight}
+                      </label>
                       <input
                         type="number"
                         min="20"
@@ -267,7 +298,9 @@ export default function OnboardingView({ user, onComplete }: OnboardingViewProps
                       />
                     </div>
                     <div>
-                      <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wide block mb-1">Taille (cm)</label>
+                      <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wide block mb-1">
+                        {t.onboarding.stepCorpHeight}
+                      </label>
                       <input
                         type="number"
                         min="90"
@@ -283,22 +316,22 @@ export default function OnboardingView({ user, onComplete }: OnboardingViewProps
                 </div>
               )}
 
-              {/* Étape 3 : Pays */}
-              {step === 3 && (
+              {/* Étape 4 : Pays */}
+              {step === 4 && (
                 <div id="step_country">
                   <div className="flex items-center gap-2 mb-3">
                     <MapPin className="w-5 h-5 text-emerald-500" />
                     <h2 className="text-lg font-display font-bold text-slate-800">
-                      Dans quel pays résidez-vous ?
+                      {t.onboarding.stepCountryTitle}
                     </h2>
                   </div>
                   <p className="text-xs text-slate-400 mb-4">
-                    Cela aide BeSafe à identifier vos denrées locales, vos marchés et à proposer des recettes de saisons authentiques.
+                    {t.onboarding.stepCountryDesc}
                   </p>
                   <select
                     value={country}
                     onChange={(e) => setCountry(e.target.value)}
-                    className="w-full px-4 py-3 bg-white/80 border border-slate-200 rounded-2xl text-slate-800 font-sans font-semibold text-sm focus:outline-none"
+                    className="w-full px-4 py-3 bg-white/80 border border-slate-200 rounded-2xl text-slate-800 font-sans font-semibold text-sm focus:outline-none focus:border-emerald-400"
                     id="input_country"
                   >
                     {commonCountries.map((c) => (
@@ -308,25 +341,25 @@ export default function OnboardingView({ user, onComplete }: OnboardingViewProps
                 </div>
               )}
 
-              {/* Étape 4 : Alimentation typique */}
-              {step === 4 && (
+              {/* Étape 5 : Alimentation typique */}
+              {step === 5 && (
                 <div id="step_diet">
                   <div className="flex items-center gap-2 mb-3">
                     <Utensils className="w-5 h-5 text-emerald-500" />
                     <h2 className="text-lg font-display font-bold text-slate-800">
-                      Quelle est votre alimentation habituelle ?
+                      {t.onboarding.stepDietTitle}
                     </h2>
                   </div>
                   <p className="text-xs text-slate-400 mb-4">
-                    Sélectionnez l'option qui correspond le mieux à vos repas ou décrivez-la.
+                    {t.onboarding.stepDietDesc}
                   </p>
                   <div className="grid grid-cols-1 gap-2 max-h-[180px] overflow-y-auto pr-1 mb-3">
-                    {suggestedDiets.map((dietOption, idx) => (
+                    {t.onboarding.suggestedDiets.map((dietOption, idx) => (
                       <button
                         key={idx}
                         type="button"
                         onClick={() => setDiet(dietOption.value)}
-                        className={`text-left text-xs p-2.5 rounded-xl border transition-all duration-200 ${
+                        className={`text-left text-xs p-2.5 rounded-xl border transition-all duration-200 cursor-pointer ${
                           diet === dietOption.value 
                             ? "bg-green-50 border-green-500 font-bold text-green-800 shadow-sm shadow-green-100" 
                             : "bg-white/70 border-green-100 hover:bg-green-50/30 text-slate-600 hover:border-green-300"
@@ -339,32 +372,32 @@ export default function OnboardingView({ user, onComplete }: OnboardingViewProps
                   <textarea
                     value={diet}
                     onChange={(e) => setDiet(e.target.value)}
-                    placeholder="Ou décrivez votre alimentation ici (ex: riz blanc, friture de plantains dodo...)"
+                    placeholder={t.onboarding.stepDietPlaceholder}
                     className="w-full h-16 p-3 bg-white/80 border border-slate-200 rounded-2xl text-slate-600 text-xs focus:outline-none focus:border-emerald-400 transition-all"
                     id="input_diet_text"
                   />
                 </div>
               )}
 
-              {/* Étape 5 : Activité physique */}
-              {step === 5 && (
+              {/* Étape 6 : Activité physique */}
+              {step === 6 && (
                 <div id="step_activity">
                   <div className="flex items-center gap-2 mb-3">
                     <Activity className="w-5 h-5 text-emerald-500" />
                     <h2 className="text-lg font-display font-bold text-slate-800">
-                      Niveau d'activité physique
+                      {t.onboarding.stepActTitle}
                     </h2>
                   </div>
                   <p className="text-xs text-slate-400 mb-4">
-                    L'exercice réduit considérablement la résistance à l'insuline et active l'oxygénation des veines.
+                    {t.onboarding.stepActDesc}
                   </p>
                   <div className="flex flex-col gap-3">
-                    {activities.map((act) => (
+                    {t.onboarding.activities.map((act) => (
                       <button
                         key={act.value}
                         type="button"
                         onClick={() => setPhysicalActivity(act.value)}
-                        className={`flex items-center justify-between p-4 rounded-2xl border transition-all duration-200 text-sm ${
+                        className={`flex items-center justify-between p-4 rounded-2xl border transition-all duration-200 text-sm cursor-pointer ${
                           physicalActivity === act.value 
                             ? "bg-green-50 border-green-500 text-green-800 font-bold shadow-sm shadow-green-100" 
                             : "bg-white/70 border-green-100 hover:bg-green-50/30 text-slate-600 hover:border-green-300"
@@ -380,25 +413,25 @@ export default function OnboardingView({ user, onComplete }: OnboardingViewProps
                 </div>
               )}
 
-              {/* Étape 6 : Antécédents médicaux */}
-              {step === 6 && (
+              {/* Étape 7 : Antécédents médicaux */}
+              {step === 7 && (
                 <div id="step_history">
                   <div className="flex items-center gap-2 mb-3">
                     <ClipboardList className="w-5 h-5 text-emerald-500" />
                     <h2 className="text-lg font-display font-bold text-slate-800">
-                      Vos antécédents médicaux / Génétiques
+                      {t.onboarding.stepHistoryTitle}
                     </h2>
                   </div>
                   <p className="text-xs text-slate-400 mb-4">
-                    Évaluez votre prédisposition génétique afin d'ajuster les filtres d'alerte.
+                    {t.onboarding.stepHistoryDesc}
                   </p>
                   <div className="flex flex-col gap-2 max-h-[180px] overflow-y-auto mb-3">
-                    {medicalHistories.map((med, idx) => (
+                    {t.onboarding.medicalHistories.map((med, idx) => (
                       <button
                         key={idx}
                         type="button"
                         onClick={() => setHistory(med.value)}
-                        className={`text-left text-xs p-3 rounded-xl border transition-all duration-200 ${
+                        className={`text-left text-xs p-3 rounded-xl border transition-all duration-200 cursor-pointer ${
                           history === med.value 
                             ? "bg-green-50 border-green-500 font-bold text-green-800 shadow-sm shadow-green-100" 
                             : "bg-white/70 border-green-100 hover:bg-green-50/30 text-slate-600 hover:border-green-300"
@@ -412,32 +445,32 @@ export default function OnboardingView({ user, onComplete }: OnboardingViewProps
                     type="text"
                     value={history}
                     onChange={(e) => setHistory(e.target.value)}
-                    placeholder="Autre antécédent particulier à inscrire..."
+                    placeholder={t.onboarding.stepHistoryPlaceholder}
                     className="w-full px-4 py-2.5 bg-white/80 border border-slate-200 rounded-xl text-slate-700 text-xs focus:outline-none"
                     id="input_history_text"
                   />
                 </div>
               )}
 
-              {/* Étape 7 : Objectifs bien-être */}
-              {step === 7 && (
+              {/* Étape 8 : Objectifs bien-être */}
+              {step === 8 && (
                 <div id="step_goal">
                   <div className="flex items-center gap-2 mb-3">
                     <Award className="w-5 h-5 text-emerald-500" />
                     <h2 className="text-lg font-display font-bold text-slate-800">
-                      Quel est votre objectif prioritaire ?
+                      {t.onboarding.stepGoalTitle}
                     </h2>
                   </div>
                   <p className="text-xs text-slate-400 mb-3">
-                    BeSafe construira son coaching diététique hebdomadaire autour de cet angle.
+                    {t.onboarding.stepGoalDesc}
                   </p>
                   <div className="flex flex-col gap-2 max-h-[200px] overflow-y-auto">
-                    {wellnessGoals.map((g, idx) => (
+                    {t.onboarding.wellnessGoals.map((g, idx) => (
                       <button
                         key={idx}
                         type="button"
                         onClick={() => setGoal(g.value)}
-                        className={`text-left text-xs p-3 rounded-xl border transition-all duration-200 ${
+                        className={`text-left text-xs p-3 rounded-xl border transition-all duration-200 cursor-pointer ${
                           goal === g.value 
                             ? "bg-green-50 border-green-500 font-bold text-green-800 shadow-sm shadow-green-100" 
                             : "bg-white/70 border-green-100 hover:bg-green-50/30 text-slate-600 hover:border-green-300"
@@ -450,20 +483,20 @@ export default function OnboardingView({ user, onComplete }: OnboardingViewProps
                 </div>
               )}
 
-              {/* Étape 8 : Récapitulatif d'Onboarding */}
-              {step === 8 && (
+              {/* Étape 9 : Récapitulatif d'Onboarding */}
+              {step === 9 && (
                 <div id="step_summary" className="text-center font-sans py-4">
                   <div className="w-14 h-14 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-3 text-emerald-600">
                     <Sparkles className="w-7 h-7" />
                   </div>
                   <h2 className="text-base font-display font-bold text-slate-800">
-                    Prêt pour le diagnostic IA ?
+                    {t.onboarding.stepSumTitle}
                   </h2>
                   <p className="text-xs text-slate-500 bg-emerald-50/50 p-4 rounded-2xl border border-dashed border-emerald-200 max-w-sm mx-auto my-4 text-left leading-relaxed">
-                    BeSafe va maintenant soumettre votre profil médical, IMC, habitudes alimentaires mondiales ou ouest-africaines et objectifs à <strong>Gemini 3.5 Flash</strong> pour dresser votre scorecard santé et votre plan de repas 7 jours.
+                    {t.onboarding.stepSumDesc}
                   </p>
                   <div className="flex items-center justify-center gap-2 text-[10px] uppercase font-bold text-slate-400 tracking-wider">
-                    <span>{age} ans</span> • <span>{weight} kg</span> • <span>Réside au {country}</span>
+                    <span>{age} {t.onboarding.stepSumYears}</span> • <span>{weight} kg</span> • <span>{t.onboarding.stepSumReside} {country}</span>
                   </div>
                 </div>
               )}
@@ -475,37 +508,37 @@ export default function OnboardingView({ user, onComplete }: OnboardingViewProps
                 type="button"
                 onClick={handlePrev}
                 disabled={step === 1}
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-full font-semibold text-xs border border-slate-200 shadow-sm transition-all duration-200 ${
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-full font-semibold text-xs border border-slate-200 shadow-sm transition-all duration-200 cursor-pointer ${
                   step === 1 
-                    ? "opacity-40 cursor-not-allowed text-slate-300" 
-                    : "hover:bg-slate-50 text-slate-600"
+                    ? "opacity-40 cursor-not-allowed text-slate-300 bg-slate-50" 
+                    : "hover:bg-slate-50 text-slate-600 bg-white"
                 }`}
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
-                Retour
+                {t.common.back}
               </button>
 
-              {step < 8 ? (
+              {step < 9 ? (
                 <button
                   type="button"
                   onClick={handleNext}
                   disabled={
-                    (step === 1 && !age) ||
-                    (step === 2 && (!weight || !height)) ||
-                    (step === 4 && !diet)
+                    (step === 2 && !age) ||
+                    (step === 3 && (!weight || !height)) ||
+                    (step === 5 && !diet)
                   }
-                  className="flex items-center gap-1.5 px-5 py-2.5 bg-green-500 hover:bg-green-600 disabled:bg-slate-300 text-white font-bold text-xs rounded-full shadow-md shadow-green-200 hover:shadow-lg hover:shadow-green-300 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex items-center gap-1.5 px-5 py-2.5 bg-green-500 hover:bg-green-600 disabled:bg-slate-300 text-white font-bold text-xs rounded-full shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 >
-                  Continuer
+                  {t.common.continue}
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               ) : (
                 <button
                   type="button"
                   onClick={handleFinish}
-                  className="flex items-center gap-1.5 px-6 py-2.5 bg-green-500 hover:bg-green-600 text-white font-bold text-xs rounded-full shadow-lg shadow-green-200 hover:shadow-green-300 transition-all duration-300 animate-pulse"
+                  className="flex items-center gap-1.5 px-6 py-2.5 bg-green-500 hover:bg-green-600 text-white font-bold text-xs rounded-full shadow-lg transition-all duration-300 animate-pulse cursor-pointer"
                 >
-                  Générer mon Coach !
+                  {t.onboarding.stepSumFinish}
                   <Sparkles className="w-4 h-4 text-yellow-300 animate-spin" />
                 </button>
               )}

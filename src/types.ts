@@ -14,6 +14,7 @@ export interface ProfileData {
   dietQuality: string;
   recommendations: string;
   createdAt: any; // Firestore Timestamp
+  language?: 'fr' | 'en';
 }
 
 export interface MealData {

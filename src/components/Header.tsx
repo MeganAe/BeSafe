@@ -2,13 +2,16 @@ import { auth, loginWithGoogle, logout } from "../firebase";
 import { User } from "firebase/auth";
 import { Heart, ShieldCheck, LogOut, User as UserIcon } from "lucide-react";
 import { motion } from "motion/react";
+import { translations } from "../lib/translations";
 
 interface HeaderProps {
   user: User | null;
   loading: boolean;
+  lang: 'fr' | 'en';
+  setLang: (lang: 'fr' | 'en') => void;
 }
 
-export default function Header({ user, loading }: HeaderProps) {
+export default function Header({ user, loading, lang, setLang }: HeaderProps) {
   const handleLogin = async () => {
     try {
       await loginWithGoogle();
@@ -24,6 +27,8 @@ export default function Header({ user, loading }: HeaderProps) {
       alert("Erreur de déconnexion : " + (err instanceof Error ? err.message : String(err)));
     }
   };
+
+  const t = translations[lang];
 
   return (
     <header className="sticky top-0 z-50 w-full glass-panel py-3 px-4 md:px-8 shadow-sm transition-all duration-300">
@@ -46,55 +51,83 @@ export default function Header({ user, loading }: HeaderProps) {
           </div>
           <div>
             <h1 className="text-xl font-display font-bold tracking-tight text-slate-800 leading-none">
-              Be<span className="text-emerald-500">Safe</span>
+              Be<span className="text-emerald-500 font-extrabold">Safe</span>
             </h1>
-            <p className="text-[10px] font-sans text-slate-500 font-medium uppercase tracking-wider">
-              Health-Tech Coach
+            <p className="text-[10px] font-sans text-slate-500 font-semibold uppercase tracking-wider">
+              {t.header.subtitle}
             </p>
           </div>
         </motion.div>
 
-        {/* User profile controls */}
-        <div className="flex items-center gap-3">
-          {loading ? (
-            <div className="w-8 h-8 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin" />
-          ) : user ? (
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="flex items-center gap-3 bg-white/70 pl-2 pr-3 py-1.5 rounded-full border border-slate-100 shadow-sm"
+        {/* Language Switcher & Profile Controls */}
+        <div className="flex items-center gap-4">
+          
+          {/* Selector Tab */}
+          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200/40 text-[10px] font-bold">
+            <button
+              onClick={() => setLang('fr')}
+              className={`cursor-pointer px-2 py-1 rounded-lg transition-all ${
+                lang === 'fr' 
+                  ? 'bg-white text-emerald-600 shadow-sm' 
+                  : 'text-slate-500 hover:text-slate-800'
+              }`}
             >
-              {user.photoURL ? (
-                <img 
-                  src={user.photoURL} 
-                  alt={user.displayName || "Profil"} 
-                  className="w-7 h-7 rounded-full border border-emerald-400 object-cover"
-                />
-              ) : (
-                <div className="w-7 h-7 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700">
-                  <UserIcon className="w-4 h-4" />
-                </div>
-              )}
-              <span className="hidden sm:inline text-xs font-semibold text-slate-700 max-w-[124px] truncate">
-                {user.displayName || user.email}
-              </span>
-              <button
-                onClick={handleLogout}
-                className="p-1 px-1.5 rounded-full hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all duration-200"
-                title="Déconnexion"
+              FR 🇫🇷
+            </button>
+            <button
+              onClick={() => setLang('en')}
+              className={`cursor-pointer px-2 py-1 rounded-lg transition-all ${
+                lang === 'en' 
+                  ? 'bg-white text-emerald-600 shadow-sm' 
+                  : 'text-slate-500 hover:text-slate-800'
+              }`}
+            >
+              EN 🇬🇧
+            </button>
+          </div>
+
+          <div className="flex items-center gap-3">
+            {loading ? (
+              <div className="w-8 h-8 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin" />
+            ) : user ? (
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="flex items-center gap-3 bg-white/70 pl-2 pr-3 py-1.5 rounded-full border border-slate-100 shadow-sm"
               >
-                <LogOut className="w-4 h-4" />
-              </button>
-            </motion.div>
-          ) : (
-            <motion.button
-              whileTap={{ scale: 0.98 }}
-              onClick={handleLogin}
-              className="px-5 py-2.5 bg-green-500 hover:bg-green-600 text-white font-sans text-xs font-bold rounded-full shadow-md shadow-green-200 hover:shadow-lg hover:shadow-green-300 transition-all duration-200"
-            >
-              Se connecter
-            </motion.button>
-          )}
+                {user.photoURL ? (
+                  <img 
+                    src={user.photoURL} 
+                    alt={user.displayName || "Profil"} 
+                    className="w-7 h-7 rounded-full border border-emerald-400 object-cover"
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  <div className="w-7 h-7 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700">
+                    <UserIcon className="w-4 h-4" />
+                  </div>
+                )}
+                <span className="hidden sm:inline text-xs font-semibold text-slate-700 max-w-[124px] truncate">
+                  {user.displayName || user.email}
+                </span>
+                <button
+                  onClick={handleLogout}
+                  className="p-1 px-1.5 rounded-full hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all duration-200 cursor-pointer"
+                  title={t.header.logout}
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </motion.div>
+            ) : (
+              <motion.button
+                whileTap={{ scale: 0.98 }}
+                onClick={handleLogin}
+                className="px-5 py-2.5 bg-green-500 hover:bg-green-600 text-white font-sans text-xs font-bold rounded-full shadow-md shadow-green-200 hover:shadow-lg hover:shadow-green-300 transition-all duration-200 cursor-pointer"
+              >
+                {t.header.login}
+              </motion.button>
+            )}
+          </div>
         </div>
       </div>
     </header>

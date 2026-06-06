@@ -3,23 +3,27 @@ import { User } from "firebase/auth";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { db, handleFirestoreError, OperationType } from "../firebase";
 import { MealData } from "../types";
+import { translations } from "../lib/translations";
 import { motion, AnimatePresence } from "motion/react";
-import { UploadCloud, Sparkles, AlertCircle, Apple, Flame, HelpCircle, UtensilsCrossed } from "lucide-react";
+import { UploadCloud, Sparkles, Apple, Flame, UtensilsCrossed } from "lucide-react";
 
 interface MealAnalyzerProps {
   user: User;
   country: string;
   goal: string;
   onMealAnalyzed: () => void;
+  lang: 'fr' | 'en';
 }
 
-export default function MealAnalyzer({ user, country, goal, onMealAnalyzed }: MealAnalyzerProps) {
+export default function MealAnalyzer({ user, country, goal, onMealAnalyzed, lang }: MealAnalyzerProps) {
   const [dragActive, setDragActive] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [loadingMsg, setLoadingMsg] = useState("");
   const [analysisResult, setAnalysisResult] = useState<MealData | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const t = translations[lang];
 
   // Fonction utilitaire pour compresser l'image à l'aide de HTML5 Canvas
   const compressAndSetImage = (file: File) => {
@@ -30,7 +34,6 @@ export default function MealAnalyzer({ user, country, goal, onMealAnalyzed }: Me
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d");
         
-        // Taille maximale raisonnable (ex: 800px)
         const MAX_WIDTH = 800;
         const MAX_HEIGHT = 800;
         let width = img.width;
@@ -52,7 +55,6 @@ export default function MealAnalyzer({ user, country, goal, onMealAnalyzed }: Me
         canvas.height = height;
         if (ctx) {
           ctx.drawImage(img, 0, 0, width, height);
-          // Réduction de la qualité JPEG à 0.6 pour une compression efficace ~70-150 Ko
           const compressedDataUrl = canvas.toDataURL("image/jpeg", 0.6);
           setSelectedImage(compressedDataUrl);
         }
@@ -83,7 +85,7 @@ export default function MealAnalyzer({ user, country, goal, onMealAnalyzed }: Me
         compressAndSetImage(file);
         setAnalysisResult(null);
       } else {
-        alert("Veuillez déposer un fichier image valide (.png, .jpg, .jpeg, .webp)");
+        alert(lang === "en" ? "Please drop a valid image file." : "Veuillez déposer un fichier image valide (.png, .jpg, .jpeg, .webp)");
       }
     }
   };
@@ -96,7 +98,7 @@ export default function MealAnalyzer({ user, country, goal, onMealAnalyzed }: Me
         compressAndSetImage(file);
         setAnalysisResult(null);
       } else {
-        alert("Veuillez sélectionner un fichier image valide");
+        alert(lang === "en" ? "Please select a valid image file." : "Veuillez sélectionner un fichier image valide");
       }
     }
   };
@@ -109,9 +111,13 @@ export default function MealAnalyzer({ user, country, goal, onMealAnalyzed }: Me
     if (!selectedImage) return;
 
     setAnalyzing(true);
-    setLoadingMsg("Identification du plat principal sur l'image...");
+    setLoadingMsg(t.mealAnalyzer.loadingScan);
 
-    const messages = [
+    const messages = lang === "en" ? [
+      "Scanning texturing, and local African ingredients...",
+      "Evaluating glucose intake, nutrients, and lipids...",
+      "Preparing health-tech optimization tips..."
+    ] : [
       "Numérisation de la texture et des aliments locaux (foufou, plantain, feuilles)...",
       "Évaluation de l'apport glycémique et des lipides...",
       "Calcul nutritionnel et formulation des conseils personnalisés..."
@@ -126,7 +132,6 @@ export default function MealAnalyzer({ user, country, goal, onMealAnalyzed }: Me
     }, 2000);
 
     try {
-      // Envoyer l'image Base64 compressée à notre proxy Express backend
       const response = await fetch("/api/gemini/analyze-meal", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -134,13 +139,14 @@ export default function MealAnalyzer({ user, country, goal, onMealAnalyzed }: Me
           imageBase64: selectedImage,
           mimeType: "image/jpeg",
           country,
-          goal
+          goal,
+          language: lang
         }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Une erreur est survenue lors de l'analyse du repas par l'IA.");
+        throw new Error(errorData.error || (lang === "en" ? "An error occurred with Gemini." : "Une erreur est survenue lors de l'analyse du repas par l'IA."));
       }
 
       const parsedAnalysis = await response.json();
@@ -153,10 +159,9 @@ export default function MealAnalyzer({ user, country, goal, onMealAnalyzed }: Me
         localIngredients: parsedAnalysis.localIngredients,
         suggestions: parsedAnalysis.suggestions,
         createdAt: new Date(),
-        imagePreview: selectedImage // Optionnel, évite d'épuiser le quota firestore
+        imagePreview: selectedImage
       };
 
-      // Enregistrer le plat analysé dans Firestore 
       const collectionPath = "meals";
       try {
         await addDoc(collection(db, collectionPath), {
@@ -173,11 +178,11 @@ export default function MealAnalyzer({ user, country, goal, onMealAnalyzed }: Me
       }
 
       setAnalysisResult(newMeal);
-      onMealAnalyzed(); // Recharge l'historique sur le parent
+      onMealAnalyzed();
 
     } catch (err: any) {
       console.error(err);
-      alert("Erreur lors de l'analyse : " + err.message);
+      alert((lang === "en" ? "Error during meal analysis: " : "Erreur lors de l'analyse : ") + err.message);
     } finally {
       clearInterval(intervalMsg);
       setAnalyzing(false);
@@ -197,10 +202,10 @@ export default function MealAnalyzer({ user, country, goal, onMealAnalyzed }: Me
         </div>
         <div>
           <h2 className="text-lg font-display font-bold text-slate-800">
-            Analyseur de Repas Intelligent
+            {t.mealAnalyzer.title}
           </h2>
           <p className="text-xs text-slate-500">
-            Prenez votre assiette en photo ! Notre IA BeSafe identifie l'apport calorique et équilibre les féculents locaux.
+            {t.mealAnalyzer.desc}
           </p>
         </div>
       </div>
@@ -215,7 +220,6 @@ export default function MealAnalyzer({ user, country, goal, onMealAnalyzed }: Me
             className="flex flex-col items-center justify-center py-8 px-6 bg-slate-900 text-white rounded-3xl border border-emerald-500/30 text-center relative overflow-hidden"
             id="meals_loading_screen"
           >
-            {/* Visual scan container with horizontal sweeping laser bar */}
             <div className="relative w-64 h-64 rounded-2xl overflow-hidden border border-emerald-500/40 shadow-2xl mb-6 bg-black">
               {selectedImage && (
                 <img 
@@ -226,21 +230,18 @@ export default function MealAnalyzer({ user, country, goal, onMealAnalyzed }: Me
                 />
               )}
               
-              {/* Laser sweeps up and down */}
               <motion.div
                 className="absolute left-0 right-0 h-1 bg-emerald-400 shadow-[0_0_12px_#34d399] z-20"
                 animate={{ top: ["0%", "100%", "0%"] }}
                 transition={{ repeat: Infinity, duration: 2.2, ease: "easeInOut" }}
               />
 
-              {/* Glowing overlay pulsation */}
               <motion.div
                 className="absolute inset-0 bg-emerald-500/10 z-10 pointer-events-none"
                 animate={{ opacity: [0.15, 0.35, 0.15] }}
                 transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
               />
 
-              {/* Tech background matrix grid lines */}
               <div className="absolute inset-0 bg-[radial-gradient(#10b981_1px,transparent_1px)] [background-size:16px_16px] opacity-25 pointer-events-none" />
             </div>
 
@@ -248,7 +249,7 @@ export default function MealAnalyzer({ user, country, goal, onMealAnalyzed }: Me
               <div className="flex items-center justify-center gap-2 mb-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
                 <span className="text-[10px] font-bold font-mono text-emerald-400 uppercase tracking-widest">
-                  Analyse Vision Active
+                  {t.mealAnalyzer.loadingScan}
                 </span>
               </div>
               <motion.h4 
@@ -260,12 +261,11 @@ export default function MealAnalyzer({ user, country, goal, onMealAnalyzed }: Me
                 {loadingMsg}
               </motion.h4>
               <p className="text-[11px] text-emerald-300/70 mt-2 font-mono">
-                Gemini explore les doses de manioc, de riz, d'huile et d'aliments locaux...
+                {t.mealAnalyzer.loadingDetails}
               </p>
             </div>
           </motion.div>
         ) : !selectedImage ? (
-          /* Zone de Drop / Sélection Drag and Drop */
           <motion.div
             key="drag_drop_zone"
             initial={{ opacity: 0 }}
@@ -294,10 +294,10 @@ export default function MealAnalyzer({ user, country, goal, onMealAnalyzed }: Me
               <UploadCloud className="w-6 h-6" />
             </div>
             <p className="text-xs font-semibold text-slate-700 text-center">
-              Glissez-déposez la photo de votre repas ici
+              {t.mealAnalyzer.dropText}
             </p>
             <p className="text-[10px] text-slate-400 text-center mt-1">
-              ou cliquez pour parcourir votre appareil
+              {t.mealAnalyzer.clickToBrowse}
             </p>
             <div className="flex gap-2 flex-wrap justify-center mt-3.5">
               <span className="text-[9px] font-bold text-slate-500 bg-slate-150 px-2 py-1 rounded-md">Foufou</span>
@@ -307,7 +307,6 @@ export default function MealAnalyzer({ user, country, goal, onMealAnalyzed }: Me
             </div>
           </motion.div>
         ) : !analysisResult ? (
-          /* Image sélectionnée, prête à être analysée */
           <motion.div
             key="image_preview_state"
             initial={{ opacity: 0, scale: 0.95 }}
@@ -325,37 +324,35 @@ export default function MealAnalyzer({ user, country, goal, onMealAnalyzed }: Me
             <div className="w-full md:w-1/2 flex flex-col justify-center">
               <h4 className="text-sm font-bold text-slate-700 flex items-center gap-1.5 mb-2">
                 <Sparkles className="w-4 h-4 text-emerald-500 animate-spin" />
-                Image chargée avec succès
+                {t.mealAnalyzer.loadedSuccess}
               </h4>
               <p className="text-[11px] text-slate-500 leading-relaxed mb-4">
-                BeSafe est prêt à identifier la composition et les calories de votre repas. Nous intégrerons des ajustements sains liés au <strong>{country}</strong>.
+                {t.mealAnalyzer.loadedDesc} <strong>{country}</strong>.
               </p>
               <div className="flex gap-2">
                 <button
                   onClick={handleAnalyze}
-                  className="flex-1 py-2.5 bg-green-500 hover:bg-green-600 text-white text-xs font-bold rounded-xl shadow-md shadow-green-200 hover:shadow-lg transition-all duration-200"
+                  className="flex-1 py-2.5 bg-green-500 hover:bg-green-600 text-white text-xs font-bold rounded-xl shadow-md shadow-green-200 hover:shadow-lg transition-all duration-200 cursor-pointer"
                   id="btn_launch_analysis"
                 >
-                  Lancer l'analyse diététique
+                  {t.mealAnalyzer.launchAnalysis}
                 </button>
                 <button
                   onClick={handleReset}
-                  className="px-3.5 py-2 border border-slate-200 text-slate-500 hover:bg-slate-50 text-xs font-medium rounded-xl transition"
+                  className="px-3.5 py-2 border border-slate-200 text-slate-500 hover:bg-slate-50 text-xs font-medium rounded-xl transition cursor-pointer"
                 >
-                  Annuler
+                  {t.common.cancel}
                 </button>
               </div>
             </div>
           </motion.div>
         ) : (
-          /* Résultats de l'analyse nutritionnelle Gemini */
           <motion.div
             key="analysis_result"
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             className="space-y-4"
           >
-            {/* Cartographie de l'image & Calories */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4" id="meals_results">
               <div className="md:col-span-1 aspect-video md:aspect-square rounded-2xl overflow-hidden border border-slate-100 shadow-sm relative">
                 <img 
@@ -369,7 +366,7 @@ export default function MealAnalyzer({ user, country, goal, onMealAnalyzed }: Me
                 <div>
                   <div className="flex items-start justify-between gap-2 mb-2">
                     <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md uppercase tracking-wide">
-                      Analyse Complétée
+                      {t.mealAnalyzer.analysisCompleted}
                     </span>
                     <div className="flex items-center gap-1 text-orange-500 bg-orange-50 px-2.5 py-1 rounded-xl">
                       <Flame className="w-3.5 h-3.5 fill-orange-500" />
@@ -380,7 +377,7 @@ export default function MealAnalyzer({ user, country, goal, onMealAnalyzed }: Me
                     {analysisResult.mealName}
                   </h3>
                   <p className="text-xs font-semibold text-slate-800 underline block mb-1">
-                    Valeur nutritionnelle estimée :
+                    {t.mealAnalyzer.macronutrients}
                   </p>
                   <p className="text-xs text-slate-600 leading-relaxed mb-3">
                     {analysisResult.nutritionalValue}
@@ -388,14 +385,13 @@ export default function MealAnalyzer({ user, country, goal, onMealAnalyzed }: Me
                 </div>
                 {analysisResult.localIngredients && (
                   <div className="text-[10px] bg-slate-50 p-2 rounded-xl text-slate-500 border border-slate-100">
-                    <span className="font-bold text-slate-700">Ingrédients identifiés : </span>
+                    <span className="font-bold text-slate-700">{t.mealAnalyzer.identifiedIngredients} </span>
                     {analysisResult.localIngredients}
                   </div>
                 )}
               </div>
             </div>
 
-            {/* Conseils d'optimisation / suggestions saines */}
             <div className="bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-2xl">
               <div className="flex gap-2">
                 <div className="p-1.5 bg-green-500 text-white h-7 w-7 rounded-lg flex items-center justify-center shadow-md shadow-green-100">
@@ -403,7 +399,7 @@ export default function MealAnalyzer({ user, country, goal, onMealAnalyzed }: Me
                 </div>
                 <div>
                   <h4 className="text-xs font-bold text-emerald-800 uppercase tracking-wider mb-1">
-                    Suggestions d'amélioration BeSafe
+                    {t.mealAnalyzer.optimizationTitle}
                   </h4>
                   <p className="text-xs text-slate-700 leading-relaxed">
                     {analysisResult.suggestions}
@@ -412,14 +408,13 @@ export default function MealAnalyzer({ user, country, goal, onMealAnalyzed }: Me
               </div>
             </div>
 
-            {/* Actions */}
             <div className="flex justify-end gap-2">
               <button
                 onClick={handleReset}
-                className="px-5 py-2.5 bg-green-500 hover:bg-green-600 text-white text-xs font-bold rounded-full shadow-md shadow-green-200 hover:shadow-lg transition-all duration-200"
+                className="px-5 py-2.5 bg-green-500 hover:bg-green-600 text-white text-xs font-bold rounded-full shadow-md shadow-green-200 hover:shadow-lg transition-all duration-200 cursor-pointer"
                 id="btn_next_analysis"
               >
-                Analyser un autre repas
+                {t.mealAnalyzer.analyzeAnother}
               </button>
             </div>
           </motion.div>

@@ -10,7 +10,7 @@ import {
   Heart, LogOut, RefreshCw, Calendar, 
   Trash2, Flame, Apple, Info, ShieldAlert, CheckCircle2,
   ChevronRight, Smile, Award, Activity, Compass,
-  Plus, Check, Bell, FileText, TrendingUp, Mail, Send, Copy, AlertTriangle, X
+  Plus, Check, Bell, FileText, TrendingUp
 } from "lucide-react";
 import { jsPDF } from "jspdf";
 import { 
@@ -53,16 +53,6 @@ export default function DashboardView({ user, profile, onResetProfile, lang }: D
   const [trackWeight, setTrackWeight] = useState(profile.weight.toString());
   const [trackScore, setTrackScore] = useState(profile.healthScore.toString());
   const [trackDate, setTrackDate] = useState("");
-
-  // États pour la fonctionnalité d’envoi d’e-mails (Médecin/Utilisateur)
-  const [showEmailModal, setShowEmailModal] = useState(false);
-  const [toEmail, setToEmail] = useState(user.email || "");
-  const [emailSubject, setEmailSubject] = useState(`Mon Bilan de Santé & Conseils Préventifs - BeSafe`);
-  const [sendingEmail, setSendingEmail] = useState(false);
-  const [emailSuccess, setEmailSuccess] = useState<string | null>(null);
-  const [emailError, setEmailError] = useState<string | null>(null);
-  const [fallbackHtml, setFallbackHtml] = useState<string | null>(null);
-  const [copiedHtml, setCopiedHtml] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined" && "Notification" in window) {
@@ -160,52 +150,6 @@ export default function DashboardView({ user, profile, onResetProfile, lang }: D
       }
     } catch (err) {
       console.error(err);
-    }
-  };
-
-  // Envoi interactif du bilan par E-mail
-  const handleSendEmail = async (e: FormEvent) => {
-    e.preventDefault();
-    setSendingEmail(true);
-    setEmailSuccess(null);
-    setEmailError(null);
-    setFallbackHtml(null);
-    setCopiedHtml(false);
-
-    try {
-      const response = await fetch("/api/send-email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          to: toEmail,
-          subject: emailSubject,
-          profile,
-          trackingData,
-          userName: user.displayName,
-          userEmail: user.email
-        })
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Une erreur est survenue lors de l'appel API.");
-      }
-
-      const resData = await response.json();
-      if (resData.success) {
-        setEmailSuccess(resData.message || "Bilan de santé envoyé avec succès !");
-      } else {
-        // Fallback transparent si SMTP n'est pas configuré dans les secrets
-        setEmailError(resData.message);
-        if (resData.html) {
-          setFallbackHtml(resData.html);
-        }
-      }
-    } catch (err: any) {
-      console.error("Erreur send mail frontend:", err);
-      setEmailError(err.message || "Échec de la connexion au serveur d'envoi d'emails.");
-    } finally {
-      setSendingEmail(false);
     }
   };
 
@@ -647,27 +591,13 @@ export default function DashboardView({ user, profile, onResetProfile, lang }: D
 
           <div className="flex justify-end gap-2 text-xs pt-1 flex-wrap">
             <button
-              onClick={handleDownloadPDF}
-              className="px-4 py-2 bg-slate-900 border border-slate-800 text-white hover:bg-slate-800 rounded-full font-bold shadow-md shadow-slate-200 hover:shadow-lg transition-all flex items-center gap-1.5 cursor-pointer"
-              title="Générer un rapport PDF complet de diagnostic santé pour votre médecin"
-              id="btn_download_pdf_report"
+               onClick={handleDownloadPDF}
+               className="px-4 py-2 bg-slate-900 border border-slate-800 text-white hover:bg-slate-800 rounded-full font-bold shadow-md shadow-slate-200 hover:shadow-lg transition-all flex items-center gap-1.5 cursor-pointer"
+               title="Générer un rapport PDF complet de diagnostic santé pour votre médecin"
+               id="btn_download_pdf_report"
             >
               <FileText className="w-3.5 h-3.5 text-emerald-400" />
               Rapport Médecin (PDF)
-            </button>
-            <button
-              onClick={() => {
-                setShowEmailModal(true);
-                setEmailSuccess(null);
-                setEmailError(null);
-                setFallbackHtml(null);
-              }}
-              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full font-bold shadow-md shadow-emerald-200 hover:shadow-lg transition-all flex items-center gap-1.5 cursor-pointer"
-              title="Envoyer le bilan médical de santé par e-mail ou générer l'aperçu HTML de partage"
-              id="btn_send_email_report"
-            >
-              <Mail className="w-3.5 h-3.5 text-emerald-100" />
-              Envoyer par Email
             </button>
             <button
               onClick={onResetProfile}
@@ -898,166 +828,67 @@ export default function DashboardView({ user, profile, onResetProfile, lang }: D
         >
           
           {activeTab === "diagnostic" && (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start" id="view_diagnostic">
+            <div className="space-y-6" id="view_diagnostic">
               
-              {/* Colonne Gauche (2/3) : Recommandations principales */}
-              <div className="lg:col-span-2 space-y-6">
-                
-                {/* Encart Recommandation principale avec style premium */}
-                <div className="bg-white/95 p-6 rounded-3xl border border-green-100 shadow-xl shadow-green-200/10 hover:shadow-green-200/20 transition-all duration-300">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="p-3 bg-emerald-50 text-emerald-600 rounded-2xl border border-emerald-100">
-                      <Award className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h3 className="text-base font-display font-bold text-slate-800">
-                        {lang === "en" ? "Custom Clinical Recommendations & Lifestyle Guidance" : "Recommandations Diététiques & Mode de Vie Personnalisés"}
-                      </h3>
-                      <p className="text-[11px] text-slate-400">
-                        {lang === "en" ? "Formulated specifically by our health experts according to your physical parameters." : "Formulé sur mesure par notre comité scientifique d'après vos paramètres physiologiques."}
-                      </p>
-                    </div>
+              {/* Encart Recommandation principale avec style premium */}
+              <div className="bg-white/95 p-6 rounded-3xl border border-green-100 shadow-xl shadow-green-200/10 hover:shadow-green-200/20 transition-all duration-300">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-3 bg-emerald-50 text-emerald-600 rounded-2xl border border-emerald-100">
+                    <Award className="w-5 h-5" />
                   </div>
-
-                  <div className="bg-slate-50/50 p-5 rounded-2xl border border-slate-100 text-xs font-sans text-slate-700 leading-relaxed space-y-4 max-h-[460px] overflow-y-auto pr-3">
-                    <div className="whitespace-pre-wrap">{profile.recommendations}</div>
-                  </div>
-
-                  {/* Info Box */}
-                  <div className="flex gap-2.5 mt-4 text-[11px] text-slate-500 bg-emerald-50/30 p-3.5 rounded-2xl border border-emerald-100/50">
-                    <Info className="w-4.5 h-4.5 text-emerald-500 shrink-0 mt-0.5" />
-                    <p className="leading-normal">
-                      {lang === "en" 
-                        ? "BeSafe integrates strict nutritional guidelines that respect West and Central African local crops (such as cassava, jollof rice, plantains, and sweet potato). We focus on advising high-fiber, low-glycemic substitutes to maintain arterial elasticity and healthy insulin response."
-                        : "BeSafe intègre une base d'équilibres nutritionnels rigoureuse prenant en compte les féculents d'Afrique Centrale et de l'Ouest (manioc, igname, attiéké, bananes plantains dodo...). Nous vous orientons vers des versions moins glycémiques de ces spécialités pour prendre soin de votre cœur."}
+                  <div>
+                    <h3 className="text-base font-display font-bold text-slate-800">
+                      {lang === "en" ? "Custom Clinical Recommendations & Lifestyle Guidance" : "Recommandations Diététiques & Mode de Vie Personnalisés"}
+                    </h3>
+                    <p className="text-[11px] text-slate-400">
+                      {lang === "en" ? "Formulated specifically by our health experts according to your physical parameters." : "Formulé sur mesure par notre comité scientifique d'après vos paramètres physiologiques."}
                     </p>
                   </div>
                 </div>
 
-                {/* Section : Charte de l'Alliance Clinique & Pratiques */}
-                <div className="bg-white/95 p-6 rounded-3xl border border-slate-100 shadow-md">
-                  <h4 className="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4 flex items-center gap-2">
-                    <Check className="w-4 h-4 text-emerald-500 bg-emerald-50 rounded-full p-0.5" />
-                    {lang === "en" ? "Clinical Principles of the Program" : "Nos Engagements d'Accompagnement Clinique"}
-                  </h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="p-3.5 rounded-2xl bg-slate-50/70 border border-slate-100">
-                      <span className="text-[11px] font-bold text-slate-800 block mb-1">
-                        {lang === "en" ? "1. Cultural Specificity" : "1. Respect Cultuel & Gastronomique"}
-                      </span>
-                      <span className="text-[11px] text-slate-500 leading-relaxed block">
-                        {lang === "en" 
-                          ? "We never replace your local heritage with Western ingredients; we optimize current ancestral portions."
-                          : "Aucune substitution par des ingrédients importés déconnectés. Nous équilibrons vos repas ancestraux préférés."}
-                      </span>
-                    </div>
-                    <div className="p-3.5 rounded-2xl bg-slate-50/70 border border-slate-100">
-                      <span className="text-[11px] font-bold text-slate-800 block mb-1">
-                        {lang === "en" ? "2. Active Prevention" : "2. Prévention Active Cardiovasculaire"}
-                      </span>
-                      <span className="text-[11px] text-slate-500 leading-relaxed block">
-                        {lang === "en" 
-                          ? "Focused on early detection of diabetes and hypertension through daily glycemic and potassium monitoring."
-                          : "Concentré sur la régulation de l'insuline et de la tension grâce à l'apport de potassium et de légumes verts."}
-                      </span>
-                    </div>
-                  </div>
+                <div className="bg-slate-50/50 p-5 rounded-2xl border border-slate-100 text-xs font-sans text-slate-700 leading-relaxed space-y-4 max-h-[460px] overflow-y-auto pr-3">
+                  <div className="whitespace-pre-wrap">{profile.recommendations}</div>
                 </div>
 
+                {/* Info Box */}
+                <div className="flex gap-2.5 mt-4 text-[11px] text-slate-500 bg-emerald-50/30 p-3.5 rounded-2xl border border-emerald-100/50">
+                  <Info className="w-4.5 h-4.5 text-emerald-500 shrink-0 mt-0.5" />
+                  <p className="leading-normal">
+                    {lang === "en" 
+                      ? "BeSafe integrates strict nutritional guidelines that respect West and Central African local crops (such as cassava, jollof rice, plantains, and sweet potato). We focus on advising high-fiber, low-glycemic substitutes to maintain arterial elasticity and healthy insulin response."
+                      : "BeSafe intègre une base d'équilibres nutritionnels rigoureuse prenant en compte les féculents d'Afrique Centrale et de l'Ouest (manioc, igname, attiéké, bananes plantains dodo...). Nous vous orientons vers des versions moins glycémiques de ces spécialités pour prendre soin de votre cœur."}
+                  </p>
+                </div>
               </div>
 
-              {/* Colonne Droite (1/3) : Coach Clinique d'Axe & Témoignages */}
-              <div className="lg:col-span-1 space-y-6">
-                
-                {/* 1. Profil du Référent Diététique Humain */}
-                <div className="bg-white/95 p-6 rounded-3xl border border-green-150 shadow-xl shadow-green-200/10 flex flex-col justify-between">
-                  <div>
-                    <span className="text-[10px] uppercase font-bold tracking-wider text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full inline-block mb-3.5">
-                      {lang === "en" ? "Your Assigned Dietician" : "Votre Référente Nutrition dédiée"}
+              {/* Section : Charte de l'Alliance Clinique & Pratiques */}
+              <div className="bg-white/95 p-6 rounded-3xl border border-slate-100 shadow-md">
+                <h4 className="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4 flex items-center gap-2">
+                  <Check className="w-4 h-4 text-emerald-500 bg-emerald-50 rounded-full p-0.5" />
+                  {lang === "en" ? "Clinical Principles of the Program" : "Nos Engagements d'Accompagnement Clinique"}
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="p-3.5 rounded-2xl bg-slate-50/70 border border-slate-100">
+                    <span className="text-[11px] font-bold text-slate-800 block mb-1">
+                      {lang === "en" ? "1. Cultural Specificity" : "1. Respect Cultuel & Gastronomique"}
                     </span>
-                    <div className="flex items-center gap-3.5 mb-4">
-                      <img 
-                        src="https://images.unsplash.com/photo-1594824813573-246434de83fb?auto=format&fit=crop&q=80&w=200&h=200" 
-                        alt="Clara Mensah" 
-                        className="w-16 h-16 rounded-2xl object-cover border-2 border-emerald-400"
-                        referrerPolicy="no-referrer"
-                      />
-                      <div>
-                        <h4 className="text-sm font-bold text-slate-800 leading-tight">Clara Mensah, R.D.</h4>
-                        <p className="text-[11px] text-slate-500">
-                          {lang === "en" ? "Metabolic & Diet Specialist" : "Spécialiste Diabète & Nutrition Locale"}
-                        </p>
-                        <p className="text-[10px] text-emerald-600 font-semibold mt-0.5">
-                          ★ {lang === "en" ? "Active Clinical Advisor" : "Conseillère Clinique Active"}
-                        </p>
-                      </div>
-                    </div>
-                    <p className="text-[11px] text-slate-600 leading-relaxed italic bg-emerald-50/20 p-3.5 rounded-2xl border border-emerald-100/40">
-                      &ldquo;{lang === "en" 
-                        ? "My goal is to help you adapt your favorite traditional dishes without any frustration, to protect your glycemic balance and cardiovascular arteries." 
-                        : "Mon objectif est de vous aider à revisiter vos plats de saison préférés sans frustration, afin de protéger durablement vos artères et votre pancréas."}&rdquo;
-                    </p>
+                    <span className="text-[11px] text-slate-500 leading-relaxed block">
+                      {lang === "en" 
+                        ? "We never replace your local heritage with Western ingredients; we optimize current ancestral portions."
+                        : "Aucune substitution par des ingrédients importés déconnectés. Nous équilibrons vos repas ancestraux préférés."}
+                    </span>
                   </div>
-                  <div className="mt-4.5">
-                    <button 
-                      onClick={() => alert(lang === "en" ? "Consultation booking feature - coming soon in partnership with local physicians." : "Réservation de consultation - disponible prochainement en partenariat avec nos cliniques affiliées.")}
-                      className="w-full py-2.5 bg-slate-900 border border-slate-850 hover:bg-slate-800 text-white font-bold text-xs rounded-2xl shadow-md transition-all cursor-pointer text-center"
-                    >
-                      {lang === "en" ? "Request Session with Clara" : "Prendre rendez-vous"}
-                    </button>
+                  <div className="p-3.5 rounded-2xl bg-slate-50/70 border border-slate-100">
+                    <span className="text-[11px] font-bold text-slate-800 block mb-1">
+                      {lang === "en" ? "2. Active Prevention" : "2. Prévention Active Cardiovasculaire"}
+                    </span>
+                    <span className="text-[11px] text-slate-500 leading-relaxed block">
+                      {lang === "en" 
+                        ? "Focused on early detection of diabetes and hypertension through daily glycemic and potassium monitoring."
+                        : "Concentré sur la régulation de l'insuline et de la tension grâce à l'apport de potassium et de légumes verts."}
+                    </span>
                   </div>
                 </div>
-
-                {/* 2. Témoignages & Récits de Succès (Validation Humaine & Médicale) */}
-                <div className="bg-white/95 p-6 rounded-3xl border border-slate-100 shadow-md space-y-4">
-                  <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 block">
-                    {lang === "en" ? "Patient & Clinician Reviews" : "Avis de Patients & Praticiens"}
-                  </span>
-                  
-                  {/* Témoignage 1 - Patient */}
-                  <div className="space-y-2 border-b border-slate-50 pb-3">
-                    <p className="text-[11px] text-slate-600 leading-relaxed italic">
-                      &ldquo;{lang === "en" 
-                        ? "Thanks to BeSafe, I reduced my portion of palm-oil stews in favor of wild pepper soup. My type 2 blood sugar is finally down." 
-                        : "Grâce à BeSafe, j'ai adapté mes ragoûts à l'huile de palme pour des bouillons légers riches en antioxydants. Ma glycémie s'est enfin stabilisée."}&rdquo;
-                    </p>
-                    <div className="flex items-center gap-2">
-                      <img 
-                        src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=100&h=100" 
-                        alt="Sarah K." 
-                        className="w-7 h-7 rounded-full object-cover border border-slate-200"
-                        referrerPolicy="no-referrer"
-                      />
-                      <div>
-                        <span className="text-[10px] font-bold text-slate-800 block">Sarah K., 32 ans</span>
-                        <span className="text-[9px] text-slate-400 block">{lang === "en" ? "Dakar, Senegal" : "Dakar, Sénégal"}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Témoignage 2 - Médecin de l'alliance */}
-                  <div className="space-y-2">
-                    <p className="text-[11px] text-slate-600 leading-relaxed italic">
-                      &ldquo;{lang === "en" 
-                        ? "BeSafe provides invaluable dietary metrics that respect cultural culinary habits while actively preventing hypertension." 
-                        : "BeSafe apporte des repères cliniques précieux qui respectent le patrimoine culinaire ouest-corréen tout en luttant contre l'hypertension artérielle."}&rdquo;
-                    </p>
-                    <div className="flex items-center gap-2">
-                      <img 
-                        src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=100&h=100" 
-                        alt="Dr. Marc Lawson" 
-                        className="w-7 h-7 rounded-full object-cover border border-slate-200"
-                        referrerPolicy="no-referrer"
-                      />
-                      <div>
-                        <span className="text-[10px] font-bold text-slate-800 block">Dr. Aubin L., Cardiologue</span>
-                        <span className="text-[9px] text-slate-400 block">{lang === "en" ? "Marseille University Hospital" : "CHU de Bordeaux, France"}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                </div>
-
               </div>
 
             </div>
@@ -1233,179 +1064,6 @@ export default function DashboardView({ user, profile, onResetProfile, lang }: D
         </motion.div>
       </AnimatePresence>
 
-      {/* 📧 Modal d'envoi de rapport par Email */}
-      <AnimatePresence>
-        {showEmailModal && (
-          <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 15 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 15 }}
-              className="bg-white w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl border border-slate-100 flex flex-col max-h-[90vh]"
-              id="email_share_modal"
-            >
-              {/* Header */}
-              <div className="bg-emerald-600 px-6 py-5 flex items-center justify-between text-white">
-                <div className="flex items-center gap-2.5">
-                  <Mail className="w-5 h-5 text-emerald-100" />
-                  <div>
-                    <h3 className="font-display font-bold text-sm">Transmettre mon bilan par Email</h3>
-                    <p className="text-[10px] text-emerald-100/80">Partagez vos rapports cliniques de santé avec votre médecin ou vous-même.</p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setShowEmailModal(false)}
-                  className="p-1 px-2.5 hover:bg-emerald-700 rounded-xl transition-all cursor-pointer text-white font-bold"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-
-              {/* Body */}
-              <div className="p-6 overflow-y-auto flex-1 space-y-5 text-left">
-                
-                {/* Formulaire */}
-                <form onSubmit={handleSendEmail} className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
-                        Destinataire (Email)
-                      </label>
-                      <input 
-                        type="email" 
-                        required
-                        value={toEmail}
-                        onChange={(e) => setToEmail(e.target.value)}
-                        placeholder="ex: medecin@nutrition.com"
-                        className="w-full text-xs p-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:outline-none transition-all text-slate-800"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
-                        Objet de l'e-mail
-                      </label>
-                      <input 
-                        type="text" 
-                        required
-                        value={emailSubject}
-                        onChange={(e) => setEmailSubject(e.target.value)}
-                        placeholder="Objet de l'envoi"
-                        className="w-full text-xs p-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:outline-none transition-all text-slate-800"
-                      />
-                    </div>
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={sendingEmail}
-                    className="w-full p-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs transition-all flex items-center justify-center gap-2 disabled:bg-emerald-300 disabled:cursor-not-allowed cursor-pointer shadow-md"
-                  >
-                    {sendingEmail ? (
-                      <>
-                        <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                        <span>Génération du rapport et expédition...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Send className="w-3.5 h-3.5" />
-                        <span>Expédier le bilan par Email</span>
-                      </>
-                    )}
-                  </button>
-                </form>
-
-                {/* Confirmations de retour */}
-                {emailSuccess && (
-                  <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex gap-3 text-emerald-800 text-xs">
-                    <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600 mt-0.5" />
-                    <div>
-                      <p className="font-bold">Succès !</p>
-                      <p className="mt-0.5 text-emerald-700">{emailSuccess}</p>
-                    </div>
-                  </div>
-                )}
-
-                {emailError && (
-                  <div className="p-4.5 bg-amber-50 border border-amber-200 rounded-2xl space-y-3" id="email_error_fallback">
-                    <div className="flex gap-2 text-xs text-amber-800 font-bold items-center">
-                      <AlertTriangle className="w-4 h-4 text-amber-600" />
-                      <span>Limitation ou configuration requise</span>
-                    </div>
-                    <p className="text-[11px] text-slate-600 leading-relaxed">
-                      {emailError} Pour l'envoi automatique direct, veuillez configurer <code className="bg-slate-200/60 px-1 py-0.5 rounded text-amber-900 font-bold">SMTP_HOST</code> et ses identifiants dans les variables d'environnement de votre projet.
-                    </p>
-
-                    {/* Solutions immédiates de secours */}
-                    <div className="flex flex-wrap gap-2 pt-1.5">
-                      <button
-                        onClick={() => {
-                          const mailtoUrl = `mailto:${encodeURIComponent(toEmail)}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(
-                            `Bonjour,\n\nVoici mon Bilan de Santé Préventif issu de mon application BeSafe.\n\n` +
-                            `- Pays d'évaluation : ${profile.country}\n` +
-                            `- Score de Santé Global : ${profile.healthScore}/100\n` +
-                            `- Risque Diabète : ${profile.diabetesRisk}\n` +
-                            `- Risque Cardiovasculaire : ${profile.hypertensionRisk}\n` +
-                            `- Recommandations Nutritionnelles : ${profile.recommendations?.substring(0, 150)}...\n\n` +
-                            `Vous pouvez coller le code d'évaluation HTML complet en pièce jointe ou ouvrir mon PDF.\n\nCordialement,\n${user.displayName || "Patient BeSafe"}`
-                          )}`;
-                          window.open(mailtoUrl, "_blank");
-                        }}
-                        className="py-2 px-3.5 bg-slate-800 text-white rounded-xl text-[11px] font-bold hover:bg-slate-700 transition cursor-pointer"
-                      >
-                        Ouvrir dans mon client Mail local (MailtoBox)
-                      </button>
-
-                      {fallbackHtml && (
-                        <button
-                          onClick={() => {
-                            if (fallbackHtml) {
-                              navigator.clipboard.writeText(fallbackHtml);
-                              setCopiedHtml(true);
-                              setTimeout(() => setCopiedHtml(false), 2500);
-                            }
-                          }}
-                          className="py-2 px-3.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-xl text-[11px] font-bold hover:bg-emerald-100 transition flex items-center gap-1.5 cursor-pointer"
-                        >
-                          {copiedHtml ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-emerald-600" />}
-                          {copiedHtml ? "Code Copié !" : "Copier le Code HTML du Rapport"}
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* Aperçu direct en direct de la mise en page de l'email */}
-                {fallbackHtml && (
-                  <div className="space-y-2 pt-1 border-t border-slate-100">
-                    <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                      Aperçu réel du rapport médical envoyé :
-                    </span>
-                    <div className="border border-slate-200 rounded-2xl overflow-hidden h-60 bg-slate-50">
-                      <iframe 
-                        title="Dossier Health HTML Preview"
-                        srcDoc={fallbackHtml} 
-                        className="w-full h-full border-0" 
-                      />
-                    </div>
-                  </div>
-                )}
-
-              </div>
-
-              {/* Footer */}
-              <div className="bg-slate-50 px-6 py-4 flex justify-end border-t border-slate-100">
-                <button
-                  onClick={() => setShowEmailModal(false)}
-                  className="px-4 py-2 hover:bg-slate-100 text-slate-600 text-xs font-bold rounded-xl transition cursor-pointer border border-slate-200"
-                >
-                  Fermer la fenêtre
-                </button>
-              </div>
-
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }

@@ -7,7 +7,7 @@ import { translations } from "../lib/translations";
 import { motion, AnimatePresence } from "motion/react";
 import { 
   ArrowRight, ArrowLeft, HeartPulse, UserCircle, Activity, 
-  MapPin, ClipboardList, Utensils, Award, Sparkles 
+  MapPin, ClipboardList, Utensils, Award 
 } from "lucide-react";
 
 interface OnboardingViewProps {
@@ -98,7 +98,7 @@ export default function OnboardingView({ user, onComplete, lang, setLang }: Onbo
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || (lang === "en" ? "An error occurred with Gemini." : "Une erreur est survenue lors de l'appel Gemini."));
+        throw new Error(errorData.error || (lang === "en" ? "An error occurred with our diagnostic server." : "Une erreur est survenue lors de l'analyse du profil."));
       }
 
       const lAssement = await response.json();
@@ -207,7 +207,7 @@ export default function OnboardingView({ user, onComplete, lang, setLang }: Onbo
               {step === 1 && (
                 <div id="step_language">
                   <div className="flex items-center gap-2 mb-3">
-                    <Sparkles className="w-5 h-5 text-emerald-500" />
+                    <HeartPulse className="w-5 h-5 text-emerald-500" />
                     <h2 className="text-lg font-display font-bold text-slate-800">
                       {t.onboarding.stepLangTitle}
                     </h2>
@@ -487,7 +487,7 @@ export default function OnboardingView({ user, onComplete, lang, setLang }: Onbo
               {step === 9 && (
                 <div id="step_summary" className="text-center font-sans py-4">
                   <div className="w-14 h-14 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-3 text-emerald-600">
-                    <Sparkles className="w-7 h-7" />
+                    <HeartPulse className="w-7 h-7 animate-pulse" />
                   </div>
                   <h2 className="text-base font-display font-bold text-slate-800">
                     {t.onboarding.stepSumTitle}
@@ -539,7 +539,7 @@ export default function OnboardingView({ user, onComplete, lang, setLang }: Onbo
                   className="flex items-center gap-1.5 px-6 py-2.5 bg-green-500 hover:bg-green-600 text-white font-bold text-xs rounded-full shadow-lg transition-all duration-300 animate-pulse cursor-pointer"
                 >
                   {t.onboarding.stepSumFinish}
-                  <Sparkles className="w-4 h-4 text-yellow-300 animate-spin" />
+                  <HeartPulse className="w-4 h-4 text-white animate-bounce" />
                 </button>
               )}
             </div>

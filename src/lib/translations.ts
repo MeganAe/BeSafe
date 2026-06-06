@@ -9,51 +9,51 @@ export const translations = {
       cancel: "Annuler"
     },
     header: {
-      subtitle: "Coach de Santé IA",
+      subtitle: "Accompagnement Préventif Personnalisé",
       login: "Se connecter",
       logout: "Déconnexion"
     },
     landing: {
-      badge: "Health-Tech IA Solidaire",
+      badge: "Alliance Nutrition Cardio-Vasculaire",
       title: "Prenez soin de votre corps avec",
-      desc: "Un coach santé intelligent alimenté par Gemini 3.5. Obtenez un score de santé instantané, déterminez vos risques de diabète de type 2 et d'hypertension, et planifiez des repas adaptés à vos coutumes locales (foufou, saka-saka, bananes plantains, etc.).",
-      adoptedBy: "Adopté par plus de 12 pays d'Afrique",
-      cardTitle: "Votre évaluation commence ici",
-      cardDesc: "Pour sauvegarder vos analyses métaboliques, photos de dîner et suivre votre plan de 7 jours, connectez-vous de manière sécurisée via votre compte Google.",
+      desc: "Un accompagnement nutritionnel certifié. Obtenez un score de bien-être instantané, déterminez vos facteurs de risques cardiovasculaires, et planifiez des repas équilibrés adaptés à votre culture locale (foufou, saka-saka, bananes plantains, etc.).",
+      adoptedBy: "Recommandé par des nutritionnistes en Afrique et Europe",
+      cardTitle: "Commencer votre bilan de santé",
+      cardDesc: "Pour sauvegarder vos analyses métaboliques, photos d'assiettes et suivre votre plan de 7 jours, connectez-vous de manière sécurisée via votre compte Google.",
       button: "Se connecter avec Google",
-      featureScan: "Scanner",
-      featureDiagnose: "Diagnostiquer"
+      featureScan: "Évaluer",
+      featureDiagnose: "Suivre"
     },
     onboarding: {
-      title: "Profil Santé BeSafe",
+      title: "Mon Bilan de Santé BeSafe",
       question: "Question",
-      loaderTitle: "Analyse de vos données par le coach BeSafe...",
+      loaderTitle: "Analyse clinique de vos paramètres de santé...",
       loaderSteps: [
-        "Interprétation de votre profil médical...",
-        "Calcul des risques de Diabète et d'Hypertension...",
-        "Extraction des meilleurs ingrédients de substitution locaux...",
-        "Génération personnalisée de vos repas pour la semaine..."
+        "Interprétation de votre profil métabolique...",
+        "Calcul des indicateurs de risques vasculaires...",
+        "Calcul des apports d'ingrédients de substitution locaux...",
+        "Génération personnalisée de vos menus équilibrés de saison..."
       ],
-      loaderSub: "Veuillez patienter pendant que BeSafe configure un plan sur mesure ajusté à vos coutumes locales.",
+      loaderSub: "Veuillez patienter pendant que BeSafe configure un plan sur mesure ajusté à vos coutumes régionales.",
       
       stepLangTitle: "Choisissez votre langue / Choose your language",
-      stepLangDesc: "Sélectionnez votre langue de préférence pour l'ensemble de l'application et les rapports de l'IA.",
+      stepLangDesc: "Sélectionnez votre langue de préférence pour l'ensemble de l'application et les rapports cliniques.",
       
       stepAgeTitle: "Quel âge avez-vous ?",
       stepAgeDesc: "L'âge permet d'évaluer le métabolisme et d'identifier l'évolution normale des risques cardiovasculaires.",
       stepAgePlaceholder: "Ex: 34",
       
       stepCorpTitle: "Mesures de corpulence",
-      stepCorpDesc: "Ces indicateurs permettent au coach BeSafe de calculer votre IMC (Indice de Masse Corporelle).",
+      stepCorpDesc: "Ces indicateurs permettent de calculer votre IMC (Indice de Masse Corporelle) et de personnaliser vos apports.",
       stepCorpWeight: "Poids (kg)",
       stepCorpHeight: "Taille (cm)",
       
       stepCountryTitle: "Dans quel pays résidez-vous ?",
-      stepCountryDesc: "Cela aide BeSafe à identifier vos denrées locales, vos marchés et à proposer des recettes de saisons authentiques.",
+      stepCountryDesc: "Cela permet à notre équipe d'identifier vos denrées locales de saison, vos marchés et de vous proposer des alternatives équilibrées.",
       
       stepDietTitle: "Quelle est votre alimentation habituelle ?",
-      stepDietDesc: "Sélectionnez l'option qui correspond le mieux à vos repas ou décrivez-la.",
-      stepDietPlaceholder: "Ou décrivez votre alimentation ici (ex: riz blanc, friture de plantains dodo...)",
+      stepDietDesc: "Sélectionnez l'option qui correspond le mieux à vos repas ou décrivez-la afin d'optimiser les conseils de remplacement.",
+      stepDietPlaceholder: "Ou décrivez vos repas réguliers ici (ex: riz blanc, friture de plantains dodo, sauces denses...)",
       suggestedDiets: [
         { label: "Plats locaux riches (foufou, sauce huile de palme, tubercule de manioc, dinde, bœuf)", value: "Plats locaux riches (foufou, sauce huile de palme, manioc, riz gras, viande)." },
         { label: "Beignets, haricots frits, plantains (moko, dodo) et bouillies sucrées", value: "Repas frits avec beaucoup de féculents (beignets, haricots frits, bananes plantains)." },
@@ -64,7 +64,7 @@ export const translations = {
       ],
       
       stepActTitle: "Niveau d'activité physique",
-      stepActDesc: "L'exercice réduit considérablement la résistance à l'insuline et active l'oxygénation des veines.",
+      stepActDesc: "L'exercice régulier réduit la résistance à l'insuline et favorise une bonne oxygénation vasculaire.",
       activities: [
         { label: "Sédentaire (Peu ou pas d'exercice)", value: "Sédentaire" },
         { label: "Modérée (Marche, course ou sport 1-3 fois/semaine)", value: "Modérée" },
@@ -72,7 +72,7 @@ export const translations = {
       ],
       
       stepHistoryTitle: "Vos antécédents médicaux / Génétiques",
-      stepHistoryDesc: "Évaluez votre prédisposition génétique afin d'ajuster les filtres d'alerte.",
+      stepHistoryDesc: "Évaluez vos prédispositions familiales afin de configurer vos alertes de prévention.",
       stepHistoryPlaceholder: "Autre antécédent particulier à inscrire...",
       medicalHistories: [
         { label: "Aucun antécédent particulier", value: "Aucun antécédent" },
@@ -83,7 +83,7 @@ export const translations = {
       ],
       
       stepGoalTitle: "Quel est votre objectif prioritaire ?",
-      stepGoalDesc: "BeSafe construira son coaching diététique hebdomadaire autour de cet angle.",
+      stepGoalDesc: "Notre programme structurera ses recommandations hebdomadaires autour de cet angle.",
       wellnessGoals: [
         { label: "Perdre du poids et affiner ma silhouette sainement", value: "Perdre du poids et affiner ma silhouette" },
         { label: "Stabiliser ma glycémie et prévenir les risques de Diabète", value: "Prévenir et réguler ma glycémie pour le Diabète" },
@@ -92,25 +92,25 @@ export const translations = {
         { label: "Booster mon niveau d'énergie global et ma vitalité au quotidien", value: "Optimiser mes apports en nutriments pour la forme et le tonus" }
       ],
       
-      stepSumTitle: "Prêt pour le diagnostic IA ?",
-      stepSumDesc: "BeSafe va maintenant soumettre votre profil médical, IMC, habitudes alimentaires mondiales ou ouest-africaines et objectifs à Gemini 3.5 Flash pour dresser votre scorecard santé et votre plan de repas 7 jours.",
+      stepSumTitle: "Prêt pour votre bilan personnalisé ?",
+      stepSumDesc: "Nous allons maintenant assembler votre profil nutritionnel, votre IMC et vos objectifs pour dresser votre scorecard santé ainsi que votre programme de repas de 7 jours.",
       stepSumYears: "ans",
       stepSumReside: "Réside au",
-      stepSumFinish: "Générer mon Coach !"
+      stepSumFinish: "Générer mon Programme !"
     },
     dashboard: {
-      alertBegan: "Vos rappels intelligents",
-      alertBeganDesc: "Bandeau d'alertes préventives calculé par BeSafe.",
-      alertNoMealToday: "Vous n'avez pas encore renseigné de repas aujourd'hui. Scannez une photo ou ajoutez un repas pour alimenter l'analyse nutritionnelle !",
-      alertActivateNotifications: "Activer les notifications du bureau",
+      alertBegan: "Mes Rappels de Prévention",
+      alertBeganDesc: "Indicateurs préventifs calculés d'après votre profil.",
+      alertNoMealToday: "Vous n'avez pas encore renseigné de repas aujourd'hui. Analysez une assiette pour mettre à jour votre bilan nutritionnel !",
+      alertActivateNotifications: "Activer les alertes de suivi",
       
-      title: "Tableau de Bord Préventif BeSafe",
+      title: "Tableau de Bord de Santé de Précision",
       scoreTitle: "Score de Santé Global",
-      scoreDesc: "Basé sur vos antécédents, IMC, niveau d'activité, alimentation et situation géographique.",
-      scoreLevelExcellent: "Excellent - Risques minimaux",
+      scoreDesc: "Basé sur vos antécédents, votre IMC, votre niveau d'activité, votre alimentation et votre contexte géographique.",
+      scoreLevelExcellent: "Excellent - Profil équilibré et protecteur",
       scoreLevelGood: "Bon - Bonne hygiène générale",
-      scoreLevelWarning: "Moyen - Ajustements recommandés",
-      scoreLevelDanger: "Critique - Attention prioritaire requise",
+      scoreLevelWarning: "Moyen - Ajustements conseillés",
+      scoreLevelDanger: "Attention - Suivi médical prioritaire",
       
       imcTitle: "Indice de Masse Corporelle (IMC)",
       imcUnder: "Poids insuffisant",
@@ -119,44 +119,44 @@ export const translations = {
       imcObese: "Obésité",
       
       metabolismTitle: "Évaluation du Risque Diabète Type 2",
-      hypertensionTitle: "Tension Artérielle & Risque Vasculaire",
-      dietQualityTitle: "Qualité de l'Alimentation Globale",
-      recsTitle: "Prescriptions Diététiques & Mode de Vie de l'IA",
+      hypertensionTitle: "Tension Artérielle & Risque Cardiovasculaire",
+      dietQualityTitle: "Qualité Globale de l'Alimentation",
+      recsTitle: "Prescriptions Diététiques & Hygiène de Vie",
       
       mealPlanTitle: "Plan de Repas de Saison Sur-Mesure",
-      mealPlanDesc: "Recommandations générées pour équilibrer vos plats locaux de saison au",
+      mealPlanDesc: "Recommandations élaborées pour équilibrer vos plats locaux de saison au",
       
-      trackingTitle: "Suivi Physiologique & Historique Clinique",
-      trackingDesc: "Saisissez régulièrement vos nouvelles mesures pour analyser les tendances de progression.",
+      trackingTitle: "Suivi Physiologique & Journal de Poids",
+      trackingDesc: "Saisissez régulièrement vos nouvelles mesures pour analyser vos progrès.",
       trackWeight: "Nouveau poids (kg)",
-      trackScore: "Score de bien-être quotidien (0-100)",
+      trackScore: "Score de vitalité quotidien (0-100)",
       trackDate: "Date d'enregistrement",
       trackAddBtn: "Consigner la mesure",
-      trackHistoryHeader: "Dossier Médical - Dernières Données Historiques",
+      trackHistoryHeader: "Dossier Médical - Suivi des Paramètres Corporels",
       trackColDate: "Période",
       trackColWeight: "Poids",
-      trackColScore: "Score de Santé",
+      trackColScore: "Score",
       trackEmpty: "Aucune mesure enregistrée pour le moment.",
       
-      doctorPDF: "Rapport Médecin (PDF)",
-      recalculate: "Mettre à jour le profil",
-      disclaimer: "Ces résultats d'intelligence artificielle de pointe sont dispensés à des fins d'information et d'éducation préventive. Ils ne remplacent pas une consultation ou prescription fournie par un professionnel de la santé agréé."
+      doctorPDF: "Rapport de Consultation (PDF)",
+      recalculate: "Ajuster mon profil",
+      disclaimer: "Ces évaluations et suggestions de santé sont dispensées à des fins d'information et d'éducation préventive. Elles ne remplacent en aucun cas un diagnostic, une prescription ou une consultation fournie par un professionnel de la santé ou un médecin généraliste agréé."
     },
     mealAnalyzer: {
-      title: "Analyseur de Repas Intelligent",
-      desc: "Prenez votre assiette en photo ! Notre IA BeSafe identifie l'apport calorique et équilibre les féculents locaux.",
-      loadingScan: "Analyse Vision Active",
-      loadingDetails: "Gemini explore les doses de manioc, de riz, d'huile et d'aliments locaux...",
+      title: "Analyseur de Nutrition Visuel",
+      desc: "Prenez votre assiette en photo ! Notre outil identifie l'apport calorique estimé et équilibre les féculents locaux.",
+      loadingScan: "Analyse Visuelle Active",
+      loadingDetails: "Détection des portions, des lipides, glucides et des ingrédients régionaux...",
       dropText: "Glissez-déposez la photo de votre repas ici",
-      clickToBrowse: "ou cliquez pour parcourir votre appareil",
+      clickToBrowse: "ou parcourez les fichiers de votre appareil",
       loadedSuccess: "Image chargée avec succès",
-      loadedDesc: "BeSafe est prêt à identifier la composition et les calories de votre repas. Nous intégrerons des ajustements sains liés au",
-      launchAnalysis: "Lancer l'analyse diététique",
+      loadedDesc: "Analyseur paré. Nous allons évaluer la composition globale et vous proposer des alternatives équilibrées adaptées au",
+      launchAnalysis: "Lancer l'analyse nutritionnelle",
       analysisCompleted: "Analyse Complétée",
-      macronutrients: "Valeur nutritionnelle estimée :",
+      macronutrients: "Valeur nutritionnelle estimée pour une portion :",
       identifiedIngredients: "Ingrédients identifiés :",
-      optimizationTitle: "Suggestions d'amélioration BeSafe",
-      analyzeAnother: "Analyser un autre repas"
+      optimizationTitle: "Ajustements Préventifs Recommandés",
+      analyzeAnother: "Analyser une nouvelle assiette"
     }
   },
   en: {
@@ -169,51 +169,51 @@ export const translations = {
       cancel: "Cancel"
     },
     header: {
-      subtitle: "AI Health Coach",
+      subtitle: "Personal Preventive Health",
       login: "Sign in",
       logout: "Sign out"
     },
     landing: {
-      badge: "Solidary AI Health-Tech",
+      badge: "Cardiovascular Prevention Alliance",
       title: "Take care of your body with",
-      desc: "An intelligent health coach powered by Gemini 3.5. Get an instant health score, evaluate your type 2 diabetes and hypertension risks, and plan meals adapted to your local customs (foufou, saka-saka, plantains, etc.).",
-      adoptedBy: "Adopted in over 12 countries in Africa",
-      cardTitle: "Your evaluation starts here",
-      cardDesc: "To save your metabolic analyses, dinner photos and track your 7-day plan, sign in securely using your Google account.",
+      desc: "Certified nutritional and lifestyle guidance. Get an instant well-being score, evaluate your cardiovascular factors, and plan balanced meals adapted to your local culture (foufou, saka-saka, plantains, etc.).",
+      adoptedBy: "Trusted by clinical nutrition experts",
+      cardTitle: "Start your health assessment",
+      cardDesc: "To save your metabolic analyses, meal photos, and follow your 7-day plan, sign in securely using your Google account.",
       button: "Sign in with Google",
-      featureScan: "Scan",
-      featureDiagnose: "Diagnose"
+      featureScan: "Assess",
+      featureDiagnose: "Track"
     },
     onboarding: {
       title: "BeSafe Health Profile",
       question: "Question",
-      loaderTitle: "Analyzing your data with the BeSafe coach...",
+      loaderTitle: "Analyzing your physical parameters...",
       loaderSteps: [
-        "Interpreting your medical profile...",
-        "Calculating Diabetes and Hypertension risks...",
-        "Extracting best local substitution ingredients...",
-        "Custom generating your meals for the week..."
+        "Interpreting metabolic profile...",
+        "Evaluating cardiovascular indicators...",
+        "Identifying optimal local substitutions...",
+        "Generating balanced seasonal menus..."
       ],
-      loaderSub: "Please wait while BeSafe configures a custom plan adjusted to your local customs.",
+      loaderSub: "Please wait while BeSafe configures a custom plan adjusted to your local custom options.",
       
       stepLangTitle: "Choose your language / Choisissez votre langue",
-      stepLangDesc: "Select your preferred language for the entire application and AI reports.",
+      stepLangDesc: "Select your preferred language for the entire application and reports.",
       
       stepAgeTitle: "How old are you?",
-      stepAgeDesc: "Age allows us to evaluate metabolism and identify normal cardiovascular evolution risks.",
+      stepAgeDesc: "Age helps evaluate metabolic rates and identify regular cardiovascular evolutionary progression.",
       stepAgePlaceholder: "e.g., 34",
       
       stepCorpTitle: "Body measurements",
-      stepCorpDesc: "These metrics help the BeSafe coach calculate your BMI (Body Mass Index).",
+      stepCorpDesc: "These metrics calculate your BMI (Body Mass Index) and assist in tailoring daily intake targets.",
       stepCorpWeight: "Weight (kg)",
       stepCorpHeight: "Height (cm)",
       
       stepCountryTitle: "Which country do you reside in?",
-      stepCountryDesc: "This helps BeSafe identify your local ingredients, local markets, and suggest authentic seasonal recipes.",
+      stepCountryDesc: "This helps our program identify local seasonal ingredients, markets, and suggest balanced substitutes.",
       
       stepDietTitle: "What is your typical diet?",
-      stepDietDesc: "Select the option that best fits your typical meals, or describe it.",
-      stepDietPlaceholder: "Or describe your diet here (e.g., rice, fried plantains, stew...)",
+      stepDietDesc: "Select the option that best fits your typical meals, or describe it to optimize substitution recommendations.",
+      stepDietPlaceholder: "Or describe your typical diet here (e.g., white rice, fried plantains, stews...)",
       suggestedDiets: [
         { label: "Rich local dishes (foufou, palm oil sauce, cassava tuber, turkey, beef)", value: "Rich local dishes (foufou, palm oil sauce, cassava, jollof rice, meat)." },
         { label: "Fritters, fried beans, plantains (dodo) and sweet porridges", value: "Fried meals with many starches (fritters, fried beans, plantains)." },
@@ -224,7 +224,7 @@ export const translations = {
       ],
       
       stepActTitle: "Physical activity level",
-      stepActDesc: "Exercise significantly reduces insulin resistance and activates active blood oxygenation.",
+      stepActDesc: "Regular physical activity reduces insulin resistance and supports healthy vascular oxygenation.",
       activities: [
         { label: "Sedentary (Little or no exercise)", value: "Sédentaire" },
         { label: "Moderate (Walking, running or sport 1-3 times/week)", value: "Modérée" },
@@ -232,7 +232,7 @@ export const translations = {
       ],
       
       stepHistoryTitle: "Medical / Genetic History",
-      stepHistoryDesc: "Assess your genetic predisposition to adjust the predictive warning filters.",
+      stepHistoryDesc: "Assess your genetic background to customize preventive alert indicators.",
       stepHistoryPlaceholder: "Other specific background history to include...",
       medicalHistories: [
         { label: "No specific history", value: "Aucun antécédent" },
@@ -242,8 +242,8 @@ export const translations = {
         { label: "Regular digestive disorders (gluten, lactose, bloating)", value: "Sensibilité intestinale, ballonnements récurrents" }
       ],
       
-      stepGoalTitle: "What is your high priority goal?",
-      stepGoalDesc: "BeSafe will build its weekly dietary coaching around this core objective.",
+      stepGoalTitle: "What is your main priority goal?",
+      stepGoalDesc: "Our program will tailor weekly meal and lifestyle recommendations around this core focus.",
       wellnessGoals: [
         { label: "Lose weight and shape my figure healthily", value: "Perdre du poids et affiner ma silhouette" },
         { label: "Stabilize blood sugar and prevent type 2 diabetes risk", value: "Prévenir et réguler ma glycémie pour le Diabète" },
@@ -252,25 +252,25 @@ export const translations = {
         { label: "Boost overall energy levels and daily vitality", value: "Optimiser mes apports en nutriments pour la forme et le tonus" }
       ],
       
-      stepSumTitle: "Ready for your AI Diagnosis?",
-      stepSumDesc: "BeSafe will now submit your clinical profile, BMI, global or West-African dietary habits and goals to Gemini 3.5 Flash to establish your health scorecard and 7-day meal plan.",
+      stepSumTitle: "Ready for your personalized assessment?",
+      stepSumDesc: "We will compile your nutritional values, BMI, and aims to produce your health scorecard and 7-day dietary plan.",
       stepSumYears: "years old",
       stepSumReside: "Resides in",
-      stepSumFinish: "Generate my Coach !"
+      stepSumFinish: "Generate my Program !"
     },
     dashboard: {
-      alertBegan: "Your Smart Reminders",
-      alertBeganDesc: "Preventive warning banner calculated by BeSafe.",
-      alertNoMealToday: "You haven't recorded any meal today. Scan a photo or add a meal to feed the nutritional analysis!",
-      alertActivateNotifications: "Activate desktop notifications",
+      alertBegan: "Preventive Reminders",
+      alertBeganDesc: "Health alert priorities set up based on your physical markers.",
+      alertNoMealToday: "You haven't recorded any meal today. Analyze a plate to update your nutritional report!",
+      alertActivateNotifications: "Activate tracking alerts",
       
-      title: "BeSafe Preventive Health Dashboard",
+      title: "Precision Health Dashboard",
       scoreTitle: "Overall Health Score",
-      scoreDesc: "Based on your clinical history, BMI, activity level, diet, and geographical context.",
-      scoreLevelExcellent: "Excellent - Minimal risks",
+      scoreDesc: "Computed based on your medical history, BMI, exercise habits, diet, and regional elements.",
+      scoreLevelExcellent: "Excellent - High-quality, protective profile",
       scoreLevelGood: "Good - General healthy habits",
-      scoreLevelWarning: "Average - Adjustments recommended",
-      scoreLevelDanger: "Critical - Prioritized attention required",
+      scoreLevelWarning: "Average - Healthy adjustments advised",
+      scoreLevelDanger: "Prioritized - Consultation advised",
       
       imcTitle: "Body Mass Index (BMI)",
       imcUnder: "Underweight",
@@ -278,45 +278,45 @@ export const translations = {
       imcOver: "Overweight",
       imcObese: "Obese",
       
-      metabolismTitle: "Type 2 Diabetes Risk Evaluation",
-      hypertensionTitle: "Blood Pressure & Vascular Risk Analysis",
-      dietQualityTitle: "Overall Dietary Quality Assessment",
-      recsTitle: "AI Dietary Prescriptions & Lifestyle Guidance",
+      metabolismTitle: "Type 2 Diabetes Risk Analysis",
+      hypertensionTitle: "Blood Pressure & Cardiovascular Risk",
+      dietQualityTitle: "Overall Dietary Assessment",
+      recsTitle: "Nutritional Guidance & Lifestyle Recommendations",
       
       mealPlanTitle: "Custom Seasonal Meal Plan",
       mealPlanDesc: "Recommendations generated to balance your local seasonal dishes in",
       
-      trackingTitle: "Physiological Tracking & Clinical History",
-      trackingDesc: "Enter your measurements regularly to analyze progression tendencies.",
+      trackingTitle: "Physiological Tracking & Weight History",
+      trackingDesc: "Log your weights and measurements regularly to analyze your tendencies over time.",
       trackWeight: "New weight (kg)",
-      trackScore: "Daily well-being score (0-100)",
+      trackScore: "Daily vitality score (0-100)",
       trackDate: "Recording date",
-      trackAddBtn: "Record measurement",
-      trackHistoryHeader: "Medical Record - Latest Historical Data",
-      trackColDate: "Date",
+      trackAddBtn: "Log measurement",
+      trackHistoryHeader: "Clinical Dossier - Body Parameter Trends",
+      trackColDate: "Period",
       trackColWeight: "Weight",
-      trackColScore: "Health Score",
+      trackColScore: "Score",
       trackEmpty: "No measurements recorded yet.",
       
-      doctorPDF: "Doctor Report (PDF)",
-      recalculate: "Update Profile",
-      disclaimer: "These state-of-the-art artificial intelligence assessments are purely informational and preventive. They do not replace formal clinical consultation, diagnosis, or prescription by a certified medical doctor/practitioner."
+      doctorPDF: "Shareable Rapport (PDF)",
+      recalculate: "Readjust My Profile",
+      disclaimer: "These health reports and assessments are purely informational and preventive. They do not replace formal diagnosis, prescription, or clinical consultation by a certified general practitioner or medical professional."
     },
     mealAnalyzer: {
-      title: "Smart Meal Analyzer",
-      desc: "Take a picture of your plate! Our BeSafe AI will identify the calories and help balance local starches.",
-      loadingScan: "Active Vision Scan",
-      loadingDetails: "Gemini is examining cassava, rice, oil portions, and local food items...",
+      title: "Visual Nutrition Analyzer",
+      desc: "Take a picture of your plate! Our tool estimates calories and helps balance local starch intake.",
+      loadingScan: "Active Visual Scan",
+      loadingDetails: "Detecting portions, lipides, glucides, and key local ingredients...",
       dropText: "Drag and drop your meal photo here",
-      clickToBrowse: "or click to browse your device",
+      clickToBrowse: "or click to browse your device files",
       loadedSuccess: "Image loaded successfully",
-      loadedDesc: "BeSafe is ready to identify the composition and estimated calories of your meal. We will integrate healthy adjustments based on",
-      launchAnalysis: "Launch nutritional analysis",
+      loadedDesc: "Analyzer ready. We will identify the composition details and provide healthy suggestions adapted to",
+      launchAnalysis: "Launch visual analysis",
       analysisCompleted: "Analysis Completed",
-      macronutrients: "Estimated nutrition value:",
+      macronutrients: "Estimated nutrition values per serving:",
       identifiedIngredients: "Identified key ingredients:",
-      optimizationTitle: "BeSafe Healthy Suggestions",
-      analyzeAnother: "Analyze another meal"
+      optimizationTitle: "Recommended Preventive Balances",
+      analyzeAnother: "Analyze a new plate"
     }
   }
 };

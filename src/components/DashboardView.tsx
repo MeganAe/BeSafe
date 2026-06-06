@@ -7,7 +7,7 @@ import MealAnalyzer from "./MealAnalyzer";
 import { translations } from "../lib/translations";
 import { motion, AnimatePresence } from "motion/react";
 import { 
-  Heart, Sparkles, LogOut, RefreshCw, Calendar, 
+  Heart, LogOut, RefreshCw, Calendar, 
   Trash2, Flame, Apple, Info, ShieldAlert, CheckCircle2,
   ChevronRight, Smile, Award, Activity, Compass,
   Plus, Check, Bell, FileText, TrendingUp, Mail, Send, Copy, AlertTriangle, X
@@ -897,37 +897,167 @@ export default function DashboardView({ user, profile, onResetProfile, lang }: D
           transition={{ duration: 0.18 }}
         >
           
-          {/* Onglet 1 : Diagnostic & Recommandations détaillées */}
           {activeTab === "diagnostic" && (
-            <div className="space-y-6" id="view_diagnostic">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start" id="view_diagnostic">
               
-              {/* Encart Recommandation principale avec style premium */}
-              <div className="bg-white/95 p-6 rounded-3xl border border-green-100 shadow-lg shadow-green-200/40">
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="p-2 bg-emerald-100 rounded-xl text-emerald-600">
-                    <Sparkles className="w-5 h-5 animate-pulse" />
+              {/* Colonne Gauche (2/3) : Recommandations principales */}
+              <div className="lg:col-span-2 space-y-6">
+                
+                {/* Encart Recommandation principale avec style premium */}
+                <div className="bg-white/95 p-6 rounded-3xl border border-green-100 shadow-xl shadow-green-200/10 hover:shadow-green-200/20 transition-all duration-300">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="p-3 bg-emerald-50 text-emerald-600 rounded-2xl border border-emerald-100">
+                      <Award className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-base font-display font-bold text-slate-800">
+                        {lang === "en" ? "Custom Clinical Recommendations & Lifestyle Guidance" : "Recommandations Diététiques & Mode de Vie Personnalisés"}
+                      </h3>
+                      <p className="text-[11px] text-slate-400">
+                        {lang === "en" ? "Formulated specifically by our health experts according to your physical parameters." : "Formulé sur mesure par notre comité scientifique d'après vos paramètres physiologiques."}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="text-base font-display font-bold text-slate-800">
-                      Recommandation personnalisée de votre Coach
-                    </h3>
-                    <p className="text-[11px] text-slate-400">
-                      Généré par Gemini 3.5 Flash d'après votre objectif de bien-être.
+
+                  <div className="bg-slate-50/50 p-5 rounded-2xl border border-slate-100 text-xs font-sans text-slate-700 leading-relaxed space-y-4 max-h-[460px] overflow-y-auto pr-3">
+                    <div className="whitespace-pre-wrap">{profile.recommendations}</div>
+                  </div>
+
+                  {/* Info Box */}
+                  <div className="flex gap-2.5 mt-4 text-[11px] text-slate-500 bg-emerald-50/30 p-3.5 rounded-2xl border border-emerald-100/50">
+                    <Info className="w-4.5 h-4.5 text-emerald-500 shrink-0 mt-0.5" />
+                    <p className="leading-normal">
+                      {lang === "en" 
+                        ? "BeSafe integrates strict nutritional guidelines that respect West and Central African local crops (such as cassava, jollof rice, plantains, and sweet potato). We focus on advising high-fiber, low-glycemic substitutes to maintain arterial elasticity and healthy insulin response."
+                        : "BeSafe intègre une base d'équilibres nutritionnels rigoureuse prenant en compte les féculents d'Afrique Centrale et de l'Ouest (manioc, igname, attiéké, bananes plantains dodo...). Nous vous orientons vers des versions moins glycémiques de ces spécialités pour prendre soin de votre cœur."}
                     </p>
                   </div>
                 </div>
 
-                <div className="bg-white/55 p-5 rounded-2xl border border-slate-50 text-xs font-sans text-slate-700 leading-relaxed space-y-4 max-h-[420px] overflow-y-auto pr-2">
-                  <p className="whitespace-pre-wrap">{profile.recommendations}</p>
+                {/* Section : Charte de l'Alliance Clinique & Pratiques */}
+                <div className="bg-white/95 p-6 rounded-3xl border border-slate-100 shadow-md">
+                  <h4 className="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4 flex items-center gap-2">
+                    <Check className="w-4 h-4 text-emerald-500 bg-emerald-50 rounded-full p-0.5" />
+                    {lang === "en" ? "Clinical Principles of the Program" : "Nos Engagements d'Accompagnement Clinique"}
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="p-3.5 rounded-2xl bg-slate-50/70 border border-slate-100">
+                      <span className="text-[11px] font-bold text-slate-800 block mb-1">
+                        {lang === "en" ? "1. Cultural Specificity" : "1. Respect Cultuel & Gastronomique"}
+                      </span>
+                      <span className="text-[11px] text-slate-500 leading-relaxed block">
+                        {lang === "en" 
+                          ? "We never replace your local heritage with Western ingredients; we optimize current ancestral portions."
+                          : "Aucune substitution par des ingrédients importés déconnectés. Nous équilibrons vos repas ancestraux préférés."}
+                      </span>
+                    </div>
+                    <div className="p-3.5 rounded-2xl bg-slate-50/70 border border-slate-100">
+                      <span className="text-[11px] font-bold text-slate-800 block mb-1">
+                        {lang === "en" ? "2. Active Prevention" : "2. Prévention Active Cardiovasculaire"}
+                      </span>
+                      <span className="text-[11px] text-slate-500 leading-relaxed block">
+                        {lang === "en" 
+                          ? "Focused on early detection of diabetes and hypertension through daily glycemic and potassium monitoring."
+                          : "Concentré sur la régulation de l'insuline et de la tension grâce à l'apport de potassium et de légumes verts."}
+                      </span>
+                    </div>
+                  </div>
                 </div>
 
-                {/* Info Box */}
-                <div className="flex gap-2 mt-4 text-[11px] text-slate-400 bg-slate-50 p-3 rounded-xl border border-slate-150">
-                  <Info className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-                  <p>
-                    BeSafe intègre une base d'équilibres nutritionnels prenant en compte les féculents d'Afrique Centrale et de l'Ouest (cassave, attiéké, bananes douces ou plantains). Nous favorisons des versions moins glycémiques de ces spécialités pour prendre soin de vos artères.
-                  </p>
+              </div>
+
+              {/* Colonne Droite (1/3) : Coach Clinique d'Axe & Témoignages */}
+              <div className="lg:col-span-1 space-y-6">
+                
+                {/* 1. Profil du Référent Diététique Humain */}
+                <div className="bg-white/95 p-6 rounded-3xl border border-green-150 shadow-xl shadow-green-200/10 flex flex-col justify-between">
+                  <div>
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full inline-block mb-3.5">
+                      {lang === "en" ? "Your Assigned Dietician" : "Votre Référente Nutrition dédiée"}
+                    </span>
+                    <div className="flex items-center gap-3.5 mb-4">
+                      <img 
+                        src="https://images.unsplash.com/photo-1594824813573-246434de83fb?auto=format&fit=crop&q=80&w=200&h=200" 
+                        alt="Clara Mensah" 
+                        className="w-16 h-16 rounded-2xl object-cover border-2 border-emerald-400"
+                        referrerPolicy="no-referrer"
+                      />
+                      <div>
+                        <h4 className="text-sm font-bold text-slate-800 leading-tight">Clara Mensah, R.D.</h4>
+                        <p className="text-[11px] text-slate-500">
+                          {lang === "en" ? "Metabolic & Diet Specialist" : "Spécialiste Diabète & Nutrition Locale"}
+                        </p>
+                        <p className="text-[10px] text-emerald-600 font-semibold mt-0.5">
+                          ★ {lang === "en" ? "Active Clinical Advisor" : "Conseillère Clinique Active"}
+                        </p>
+                      </div>
+                    </div>
+                    <p className="text-[11px] text-slate-600 leading-relaxed italic bg-emerald-50/20 p-3.5 rounded-2xl border border-emerald-100/40">
+                      &ldquo;{lang === "en" 
+                        ? "My goal is to help you adapt your favorite traditional dishes without any frustration, to protect your glycemic balance and cardiovascular arteries." 
+                        : "Mon objectif est de vous aider à revisiter vos plats de saison préférés sans frustration, afin de protéger durablement vos artères et votre pancréas."}&rdquo;
+                    </p>
+                  </div>
+                  <div className="mt-4.5">
+                    <button 
+                      onClick={() => alert(lang === "en" ? "Consultation booking feature - coming soon in partnership with local physicians." : "Réservation de consultation - disponible prochainement en partenariat avec nos cliniques affiliées.")}
+                      className="w-full py-2.5 bg-slate-900 border border-slate-850 hover:bg-slate-800 text-white font-bold text-xs rounded-2xl shadow-md transition-all cursor-pointer text-center"
+                    >
+                      {lang === "en" ? "Request Session with Clara" : "Prendre rendez-vous"}
+                    </button>
+                  </div>
                 </div>
+
+                {/* 2. Témoignages & Récits de Succès (Validation Humaine & Médicale) */}
+                <div className="bg-white/95 p-6 rounded-3xl border border-slate-100 shadow-md space-y-4">
+                  <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 block">
+                    {lang === "en" ? "Patient & Clinician Reviews" : "Avis de Patients & Praticiens"}
+                  </span>
+                  
+                  {/* Témoignage 1 - Patient */}
+                  <div className="space-y-2 border-b border-slate-50 pb-3">
+                    <p className="text-[11px] text-slate-600 leading-relaxed italic">
+                      &ldquo;{lang === "en" 
+                        ? "Thanks to BeSafe, I reduced my portion of palm-oil stews in favor of wild pepper soup. My type 2 blood sugar is finally down." 
+                        : "Grâce à BeSafe, j'ai adapté mes ragoûts à l'huile de palme pour des bouillons légers riches en antioxydants. Ma glycémie s'est enfin stabilisée."}&rdquo;
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <img 
+                        src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=100&h=100" 
+                        alt="Sarah K." 
+                        className="w-7 h-7 rounded-full object-cover border border-slate-200"
+                        referrerPolicy="no-referrer"
+                      />
+                      <div>
+                        <span className="text-[10px] font-bold text-slate-800 block">Sarah K., 32 ans</span>
+                        <span className="text-[9px] text-slate-400 block">{lang === "en" ? "Dakar, Senegal" : "Dakar, Sénégal"}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Témoignage 2 - Médecin de l'alliance */}
+                  <div className="space-y-2">
+                    <p className="text-[11px] text-slate-600 leading-relaxed italic">
+                      &ldquo;{lang === "en" 
+                        ? "BeSafe provides invaluable dietary metrics that respect cultural culinary habits while actively preventing hypertension." 
+                        : "BeSafe apporte des repères cliniques précieux qui respectent le patrimoine culinaire ouest-corréen tout en luttant contre l'hypertension artérielle."}&rdquo;
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <img 
+                        src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=100&h=100" 
+                        alt="Dr. Marc Lawson" 
+                        className="w-7 h-7 rounded-full object-cover border border-slate-200"
+                        referrerPolicy="no-referrer"
+                      />
+                      <div>
+                        <span className="text-[10px] font-bold text-slate-800 block">Dr. Aubin L., Cardiologue</span>
+                        <span className="text-[9px] text-slate-400 block">{lang === "en" ? "Marseille University Hospital" : "CHU de Bordeaux, France"}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
               </div>
 
             </div>

@@ -5,7 +5,7 @@ import { db, handleFirestoreError, OperationType } from "../firebase";
 import { MealData } from "../types";
 import { translations } from "../lib/translations";
 import { motion, AnimatePresence } from "motion/react";
-import { UploadCloud, Sparkles, Apple, Flame, UtensilsCrossed } from "lucide-react";
+import { UploadCloud, CheckCircle2, Apple, Flame, UtensilsCrossed } from "lucide-react";
 
 interface MealAnalyzerProps {
   user: User;
@@ -146,7 +146,7 @@ export default function MealAnalyzer({ user, country, goal, onMealAnalyzed, lang
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || (lang === "en" ? "An error occurred with Gemini." : "Une erreur est survenue lors de l'analyse du repas par l'IA."));
+        throw new Error(errorData.error || (lang === "en" ? "An error occurred with the diagnostic server." : "Une erreur est survenue lors de l'analyse du repas."));
       }
 
       const parsedAnalysis = await response.json();
@@ -323,7 +323,7 @@ export default function MealAnalyzer({ user, country, goal, onMealAnalyzed, lang
             </div>
             <div className="w-full md:w-1/2 flex flex-col justify-center">
               <h4 className="text-sm font-bold text-slate-700 flex items-center gap-1.5 mb-2">
-                <Sparkles className="w-4 h-4 text-emerald-500 animate-spin" />
+                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                 {t.mealAnalyzer.loadedSuccess}
               </h4>
               <p className="text-[11px] text-slate-500 leading-relaxed mb-4">

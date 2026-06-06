@@ -1,6 +1,6 @@
 {
   "name": "BeSafe",
-  "description": "Coach de santé préventive intelligent alimenté par Gemini IA pour analyser vos profils, risques de diabète/hypertension, vos repas locaux et proposer des plannings de nutrition équilibrés.",
+  "description": "Plateforme clinique de santé préventive et de nutrition personnalisée. Optimisez votre hygiène de vie, évaluez vos facteurs de risques cardio-vasculaires et équilibrez vos repas traditionnels avec des recettes de saison saines.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

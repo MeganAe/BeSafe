@@ -256,8 +256,8 @@ app.post("/api/send-email", async (req, res) => {
           
           <!-- En-tête -->
           <div style="background-color: #10b981; padding: 30px; text-align: left; background-image: linear-gradient(135deg, #10b981 0%, #059669 100%);">
-            <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.025em;">BeSafe &bull; Coach de Santé IA</h1>
-            <p style="color: #d1fae5; margin: 5px 0 0 0; font-size: 13px; font-weight: 500;">Dossier de Santé Numérique &amp; Recommandations Preventives</p>
+            <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.025em;">BeSafe &bull; Conseiller de Santé Personnel</h1>
+            <p style="color: #d1fae5; margin: 5px 0 0 0; font-size: 13px; font-weight: 500;">Dossier de Santé Numérique &amp; Recommandations Préventives</p>
           </div>
 
           <div style="padding: 25px 30px;">
@@ -322,7 +322,7 @@ app.post("/api/send-email", async (req, res) => {
               </tbody>
             </table>
 
-            <h3 style="color: #1e293b; font-size: 16px; margin: 0 0 15px 0; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px;">4. Recommandations de l'IA &amp; Conseils Nutritionnels</h3>
+            <h3 style="color: #1e293b; font-size: 16px; margin: 0 0 15px 0; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px;">4. Recommandations Cliniques &amp; Conseils Nutritionnels</h3>
             <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; padding: 18px; border-radius: 12px; margin-bottom: 10px;">
               <p style="margin: 0; font-size: 13.5px; color: #166534; line-height: 1.6; white-space: pre-line;">
                 ${profile?.recommendations ? profile.recommendations.replace(/[\u2022\u25CF]/g, "-") : "Aucune recommandation générée."}
@@ -333,7 +333,7 @@ app.post("/api/send-email", async (req, res) => {
 
           <div style="background-color: #f1f5f9; padding: 20px 30px; text-align: center; border-top: 1px solid #e2e8f0;">
             <p style="margin: 0; font-size: 11px; color: #94a3b8; line-height: 1.4;">
-              Ce mail automatisé contient les résultats d'analyses interactives fournis par le coach de santé IA de BeSafe. Transmettez ce bilan à votre médecin ou nutritionniste pour adapter de manière sécurisée vos futures doses ou ajustements thérapeutiques.
+              Ce mail automatisé contient les résultats d'évaluation clinique et d'hygiène préventive personnalisée de BeSafe. Transmettez ce bilan à votre médecin ou nutritionniste pour adapter de manière sécurisée vos futurs ajustements de santé.
             </p>
           </div>
 

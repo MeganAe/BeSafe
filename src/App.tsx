@@ -242,8 +242,8 @@ export default function App() {
       <footer className="w-full py-4 px-4 text-center text-[10px] text-slate-400 border-t border-slate-100 font-sans mt-auto">
         <p>
           {lang === "en" 
-            ? "© 2026 BeSafe. Preventive health AI coach powered by Gemini 3.5. Does not replace professional clinical consulting." 
-            : "© 2026 BeSafe. Coach de santé d'IA préventive fondé sur Gemini 3.5. Ne remplace pas l'avis d'un médecin agréé."}
+            ? "© 2026 BeSafe. Personal health & preventive nutrition companion. Does not replace professional clinical consulting." 
+            : "© 2026 BeSafe. Accompagnateur personnel de santé & nutrition préventive. Ne remplace pas l'avis d'un médecin agréé."}
         </p>
         <p className="mt-0.5 text-slate-300">
           {lang === "en"
